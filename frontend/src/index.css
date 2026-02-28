@@ -1,0 +1,102 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root, [data-theme="dark"] {
+    --background: 231 59% 10%;
+    --foreground: 210 40% 98%;
+    --primary: 189 100% 50%;
+    --primary-foreground: 231 59% 10%;
+    --secondary: 152 100% 50%;
+    --secondary-foreground: 231 59% 10%;
+    --muted: 231 30% 20%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --border: 231 30% 20%;
+    --card: 231 40% 12%;
+    --card-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --input: 231 30% 20%;
+    --radius: 0.5rem;
+  }
+
+  [data-theme="light"] {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --border: 214.3 31.8% 91.4%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --input: 214.3 31.8% 91.4%;
+  }
+
+  [data-theme="neon"] {
+    --background: 280 50% 5%;
+    --foreground: 300 100% 95%;
+    --primary: 320 100% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 180 100% 50%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 280 40% 15%;
+    --muted-foreground: 280 20% 70%;
+    --border: 320 100% 60%;
+    --card: 280 50% 8%;
+    --card-foreground: 300 100% 95%;
+    --input: 280 40% 15%;
+  }
+
+  [data-theme="minimal"] {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 40%;
+    --border: 0 0% 90%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --input: 0 0% 95%;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-family: 'Rajdhani', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Orbitron', sans-serif;
+  }
+}
+
+.glow-neon-blue {
+  box-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary));
+}
+
+.glow-neon-green {
+  box-shadow: 0 0 10px hsl(var(--secondary)), 0 0 20px hsl(var(--secondary));
+}
+
+.transition-dynamic {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}

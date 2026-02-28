@@ -13,18 +13,18 @@ Revolutionize tech recruitment with AI mass matching, creating perfect connectio
 - **Real-time Market Intelligence**: Salary trends, skill demand analytics
 
 ## 🏗️ Architecture
-- **Frontend**: Next.js 15 + React 19 + TypeScript
-- **Backend**: FastAPI (Python) + PostgreSQL + Redis
-- **AI/ML**: TensorFlow/PyTorch + OpenAI/Cohere embeddings
+- **Frontend**: Vite + React + TypeScript + Tailwind CSS (existing codebase)
+- **Backend**: FastAPI (Python) + PostgreSQL + Redis (to be developed)
+- **AI/ML**: TensorFlow/PyTorch + OpenAI/Cohere embeddings (to be developed)
 - **Infrastructure**: Vercel (frontend), Railway (backend), Pinecone (vector DB)
 - **Monitoring**: Sentry, Datadog, PostHog
 
 ## 📁 Project Structure
 ```
 talonhire/
-├── frontend/                 # Next.js application
-├── backend/                  # FastAPI + PostgreSQL
-├── ai/                       # ML models & embeddings
+├── frontend/                 # Vite + React application (existing codebase)
+├── backend/                  # FastAPI + PostgreSQL (to be developed)
+├── ai/                       # ML models & embeddings (to be developed)
 ├── ops/                      # Infrastructure & deployment
 ├── docs/                     # Documentation
 └── .github/                  # CI/CD workflows
@@ -39,54 +39,46 @@ talonhire/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.11+
 - Node.js 18+
-- PostgreSQL 15+
-- Redis 7+
+- Python 3.11+ (for future backend)
+- PostgreSQL 15+ (for future backend)
 - OpenAI API key
 
 ### Quick Start
 ```bash
 # Clone repository
 git clone https://github.com/lrs2805/talonhire.git
-cd talonhire
+cd talonhire/frontend
 
-# Backend setup
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-
-# Frontend setup
-cd ../frontend
+# Install dependencies
 npm install
 
 # Environment setup
 cp .env.example .env.local
 # Configure your environment variables
 
-# Run development
-npm run dev           # Frontend
-python app.py         # Backend
+# Run development server
+npm run dev
 ```
 
 ## 🔧 Tech Stack
 
-### Frontend
-- **Framework**: Next.js 15 + React 19
-- **Language**: TypeScript
+### Frontend (Existing)
+- **Framework**: Vite + React
+- **Language**: JavaScript/TypeScript
 - **Styling**: Tailwind CSS + Shadcn/ui
-- **State Management**: Zustand
-- **Forms**: React Hook Form + Zod
+- **UI Components**: Radix UI
+- **State Management**: React Context
+- **Internationalization**: i18n
 
-### Backend
+### Backend (To be developed)
 - **API**: FastAPI (Python)
 - **Database**: PostgreSQL + SQLAlchemy
 - **Cache**: Redis
 - **Search**: Elasticsearch
 - **Queue**: Celery + RabbitMQ
 
-### AI/ML
+### AI/ML (To be developed)
 - **Frameworks**: TensorFlow, PyTorch
 - **NLP**: spaCy, Transformers
 - **Embeddings**: OpenAI, Cohere
@@ -100,32 +92,25 @@ python app.py         # Backend
 
 ## 📊 Environment Variables
 ```env
-# Database
+# Frontend (Vite)
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_APP_URL=http://localhost:5173
+
+# Backend (Future)
 DATABASE_URL=postgresql://user:pass@localhost/talonhire
 REDIS_URL=redis://localhost:6379
-
-# AI Services
 OPENAI_API_KEY=your_openai_key
-COHERE_API_KEY=your_cohere_key
-PINECONE_API_KEY=your_pinecone_key
-
-# Authentication
-JWT_SECRET=your_jwt_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-LINKEDIN_CLIENT_ID=your_linkedin_client_id
-
-# Services
-STRIPE_SECRET_KEY=your_stripe_key
-SENDGRID_API_KEY=your_sendgrid_key
 ```
 
 ## 🤝 Contributing
 We use a team of specialized AI agents for development:
-- **TAKUMI ARATA**: Tech Lead & Development
-- **ARI KATSUO**: System Architecture
+- **TAKUMI ARATA**: Tech Lead & Frontend Development
+- **ARI KATSUO**: System Architecture  
 - **BUNGŌ SAKKA**: AI Engineering
+- **LEX KAITO**: Legal & Compliance Integration
+- **SAM MAVERICK**: Growth & Marketing Features
 - **KODO TAKARA**: Process Optimization
-- **SAM MAVERICK**: Growth & Marketing
 
 ## 📄 License
 Proprietary - All rights reserved.

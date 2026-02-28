@@ -1,0 +1,33 @@
+
+{
+  "short_name": "TalonHire",
+  "name": "TalonHire - Recrutamento IA",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/shapes/svg?seed=talon&size=192",
+      "type": "image/svg+xml",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/shapes/svg?seed=talon&size=512",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#00d9ff",
+  "background_color": "#0a0a1a",
+  "shortcuts": [
+    {
+      "name": "Marketplace",
+      "url": "/marketplace",
+      "description": "Find top freelance talent"
+    },
+    {
+      "name": "Academy",
+      "url": "/academy",
+      "description": "Learn new skills"
+    }
+  ]
+}
