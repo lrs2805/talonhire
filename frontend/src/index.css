@@ -1,102 +1,187 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap');
+/* Fonts - @fontsource */
+@import '@fontsource/orbitron/400.css';
+@import '@fontsource/orbitron/500.css';
+@import '@fontsource/orbitron/600.css';
+@import '@fontsource/orbitron/700.css';
+@import '@fontsource/orbitron/800.css';
+@import '@fontsource/orbitron/900.css';
+@import '@fontsource/rajdhani/300.css';
+@import '@fontsource/rajdhani/400.css';
+@import '@fontsource/rajdhani/500.css';
+@import '@fontsource/rajdhani/600.css';
+@import '@fontsource/rajdhani/700.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ========== NEON DARK TECH - CSS Variables ========== */
+:root {
+  --bg-base: #0A0A0A;
+  --neon-cyan: #00F0FF;
+  --neon-green: #39FF14;
+  --neon-cyan-rgb: 0, 240, 255;
+  --neon-green-rgb: 57, 255, 20;
+  --glow-cyan: 0 0 20px rgba(var(--neon-cyan-rgb), 0.4), 0 0 40px rgba(var(--neon-cyan-rgb), 0.2);
+  --glow-green: 0 0 20px rgba(var(--neon-green-rgb), 0.4), 0 0 40px rgba(var(--neon-green-rgb), 0.2);
+  --shadow-neon-cyan: 0 0 30px var(--neon-cyan);
+  --shadow-neon-green: 0 0 30px var(--neon-green);
+  --text-shadow-neon: 0 0 10px rgba(var(--neon-cyan-rgb), 0.5), 0 0 20px rgba(var(--neon-cyan-rgb), 0.3);
+  --font-heading: 'Orbitron', sans-serif;
+  --font-body: 'Rajdhani', sans-serif;
+}
+
 @layer base {
-  :root, [data-theme="dark"] {
-    --background: 231 59% 10%;
-    --foreground: 210 40% 98%;
-    --primary: 189 100% 50%;
-    --primary-foreground: 231 59% 10%;
-    --secondary: 152 100% 50%;
-    --secondary-foreground: 231 59% 10%;
-    --muted: 231 30% 20%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --border: 231 30% 20%;
-    --card: 231 40% 12%;
-    --card-foreground: 210 40% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --input: 231 30% 20%;
-    --radius: 0.5rem;
+  * {
+    @apply border-[#1f1f1f];
   }
 
-  [data-theme="light"] {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --border: 214.3 31.8% 91.4%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --input: 214.3 31.8% 91.4%;
-  }
-
-  [data-theme="neon"] {
-    --background: 280 50% 5%;
-    --foreground: 300 100% 95%;
-    --primary: 320 100% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 180 100% 50%;
-    --secondary-foreground: 0 0% 0%;
-    --muted: 280 40% 15%;
-    --muted-foreground: 280 20% 70%;
-    --border: 320 100% 60%;
-    --card: 280 50% 8%;
-    --card-foreground: 300 100% 95%;
-    --input: 280 40% 15%;
-  }
-
-  [data-theme="minimal"] {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 10%;
-    --primary: 0 0% 0%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 90%;
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 95%;
-    --muted-foreground: 0 0% 40%;
-    --border: 0 0% 90%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --input: 0 0% 95%;
+  html {
+    @apply scroll-smooth;
   }
 
   body {
-    @apply bg-background text-foreground transition-colors duration-300;
-    font-family: 'Rajdhani', sans-serif;
+    background-color: var(--bg-base);
+    color: #e5e5e5;
+    font-family: var(--font-body);
+    @apply antialiased;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Orbitron', sans-serif;
+
+  /* Subtle grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-base);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a3a3a;
+  }
+
+  ::selection {
+    background: rgba(var(--neon-cyan-rgb), 0.25);
+    color: var(--neon-cyan);
   }
 }
 
-.glow-neon-blue {
-  box-shadow: 0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary));
+@layer components {
+  .card-neon {
+    @apply rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .card-neon:hover {
+    border-color: rgba(var(--neon-cyan-rgb), 0.3);
+    box-shadow: 0 0 40px rgba(var(--neon-cyan-rgb), 0.5), 0 0 0 1px rgba(var(--neon-cyan-rgb), 0.2);
+  }
+
+  .card-neon-green:hover {
+    border-color: rgba(var(--neon-green-rgb), 0.3);
+    box-shadow: var(--glow-green), 0 0 0 1px rgba(var(--neon-green-rgb), 0.2);
+  }
+
+  .text-glow-cyan {
+    text-shadow: 0 0 10px rgba(var(--neon-cyan-rgb), 0.5), 0 0 30px rgba(var(--neon-cyan-rgb), 0.2);
+  }
+
+  .text-glow-green {
+    text-shadow: 0 0 10px rgba(var(--neon-green-rgb), 0.5), 0 0 30px rgba(var(--neon-green-rgb), 0.2);
+  }
+
+  .btn-cta-cyan {
+    @apply font-bold rounded-xl transition-all duration-300;
+    background: var(--neon-cyan);
+    color: #0A0A0A;
+    box-shadow: 0 0 20px rgba(var(--neon-cyan-rgb), 0.4);
+  }
+  .btn-cta-cyan:hover {
+    box-shadow: var(--shadow-neon-cyan), 0 0 40px rgba(var(--neon-cyan-rgb), 0.5);
+    filter: brightness(1.1);
+  }
+
+  .btn-cta-green {
+    @apply font-bold rounded-xl transition-all duration-300;
+    background: var(--neon-green);
+    color: #0A0A0A;
+    box-shadow: 0 0 20px rgba(var(--neon-green-rgb), 0.4);
+  }
+  .btn-cta-green:hover {
+    box-shadow: var(--shadow-neon-green), 0 0 40px rgba(var(--neon-green-rgb), 0.5);
+    filter: brightness(1.1);
+  }
 }
 
-.glow-neon-green {
-  box-shadow: 0 0 10px hsl(var(--secondary)), 0 0 20px hsl(var(--secondary));
+@layer utilities {
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+  .font-body {
+    font-family: var(--font-body);
+  }
+  .gradient-text-neon {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(90deg, var(--neon-cyan), var(--neon-green));
+    text-shadow: none;
+  }
+  .scan-lines {
+    position: relative;
+  }
+  .scan-lines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+    mix-blend-mode: soft-light;
+    animation: scanline-shift 6s linear infinite;
+  }
 }
 
-.transition-dynamic {
-  @apply transition-all duration-300 ease-in-out;
+/* Glitch effect for toggle */
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  60% { transform: translate(-2px, -2px); }
+  80% { transform: translate(2px, 2px); }
+  100% { transform: translate(0); }
 }
-
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+.horizons-card-hover {
+  will-change: transform, box-shadow, border-color;
 }
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+.horizons-card-hover:hover {
+  border-color: rgba(var(--neon-cyan-rgb), 0.45);
+  box-shadow: 0 0 40px rgba(var(--neon-cyan-rgb), 0.5), 0 0 0 1px rgba(var(--neon-cyan-rgb), 0.22);
+}
+.horizons-card-hover-green:hover {
+  border-color: rgba(var(--neon-green-rgb), 0.45);
+  box-shadow: 0 0 40px rgba(var(--neon-green-rgb), 0.5), 0 0 0 1px rgba(var(--neon-green-rgb), 0.22);
+}
+.animate-glitch:hover {
+  animation: glitch 0.3s ease-in-out;
+}
+@keyframes scanline-shift {
+  0% { transform: translateY(-6px); }
+  100% { transform: translateY(6px); }
 }

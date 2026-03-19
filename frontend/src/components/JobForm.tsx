@@ -84,12 +84,12 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
 
       {/* Title */}
       <div>
-        <label className="block text-sm text-gray-400 mb-1.5">Job Title *</label>
+        <label className="block text-sm text-gray-400 mb-1.5 font-body">Job Title *</label>
         <input
           type="text"
           value={form.title}
           onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
-          className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+          className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#39FF14] focus:ring-2 focus:ring-[#39FF14]/20"
           placeholder="Senior Full-Stack Developer"
           required
         />
@@ -97,12 +97,12 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
 
       {/* Description */}
       <div>
-        <label className="block text-sm text-gray-400 mb-1.5">Description</label>
+        <label className="block text-sm text-gray-400 mb-1.5 font-body">Description</label>
         <textarea
           value={form.description || ''}
           onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
           rows={4}
-          className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 resize-none"
+          className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#39FF14] focus:ring-2 focus:ring-[#39FF14]/20 resize-none"
           placeholder="Describe the role, responsibilities, and ideal candidate..."
         />
       </div>
@@ -110,11 +110,11 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
       {/* Seniority + Remote */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1.5">Seniority</label>
+          <label className="block text-sm text-gray-400 mb-1.5 font-body">Seniority</label>
           <select
             value={form.seniority}
             onChange={e => setForm(prev => ({ ...prev, seniority: e.target.value as SeniorityLevel }))}
-            className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+            className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#39FF14] focus:ring-2 focus:ring-[#39FF14]/20"
           >
             {seniorityOptions.map(s => (
               <option key={s} value={s} className="capitalize">{s.replace('_', '-')}</option>
@@ -128,7 +128,7 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
               type="checkbox"
               checked={form.remote}
               onChange={e => setForm(prev => ({ ...prev, remote: e.target.checked }))}
-              className="w-4 h-4 accent-green-500"
+              className="w-4 h-4 accent-[#39FF14]"
             />
             <span className="text-sm text-gray-300">Remote</span>
           </label>
@@ -137,7 +137,7 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
               type="checkbox"
               checked={form.relocation_support || false}
               onChange={e => setForm(prev => ({ ...prev, relocation_support: e.target.checked }))}
-              className="w-4 h-4 accent-green-500"
+              className="w-4 h-4 accent-[#39FF14]"
             />
             <span className="text-sm text-gray-300">Relocation</span>
           </label>
@@ -146,10 +146,10 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
 
       {/* Tech Stack */}
       <div>
-        <label className="block text-sm text-gray-400 mb-1.5">Required Tech Stack *</label>
+        <label className="block text-sm text-gray-400 mb-1.5 font-body">Required Tech Stack *</label>
         <div className="flex flex-wrap gap-2 mb-2">
           {form.required_stack.map(tech => (
-            <span key={tech} className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm flex items-center gap-1">
+            <span key={tech} className="px-3 py-1 bg-[#39FF14]/20 text-[#39FF14] rounded-full text-sm font-body flex items-center gap-1">
               {tech}
               <button type="button" onClick={() => removeStack(tech)} className="hover:text-white ml-1">&times;</button>
             </span>
@@ -160,7 +160,7 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
           value={stackInput}
           onChange={e => setStackInput(e.target.value)}
           onKeyDown={addStack}
-          className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+          className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#39FF14] focus:ring-2 focus:ring-[#39FF14]/20"
           placeholder="Type a technology and press Enter (e.g. react, python, aws)"
         />
       </div>
@@ -168,22 +168,22 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
       {/* Salary Range */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1.5">Min Salary (EUR/mo)</label>
+          <label className="block text-sm text-gray-400 mb-1.5 font-body">Min Salary (EUR/mo)</label>
           <input
             type="number"
             value={form.salary_min || ''}
             onChange={e => setForm(prev => ({ ...prev, salary_min: e.target.value ? parseInt(e.target.value) : null }))}
-            className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+            className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#39FF14] focus:ring-2 focus:ring-[#39FF14]/20"
             placeholder="2500"
           />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1.5">Max Salary (EUR/mo)</label>
+          <label className="block text-sm text-gray-400 mb-1.5 font-body">Max Salary (EUR/mo)</label>
           <input
             type="number"
             value={form.salary_max || ''}
             onChange={e => setForm(prev => ({ ...prev, salary_max: e.target.value ? parseInt(e.target.value) : null }))}
-            className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+            className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#39FF14] focus:ring-2 focus:ring-[#39FF14]/20"
             placeholder="5000"
           />
         </div>
@@ -191,11 +191,11 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
 
       {/* Contract Type */}
       <div>
-        <label className="block text-sm text-gray-400 mb-1.5">Contract Model</label>
+        <label className="block text-sm text-gray-400 mb-1.5 font-body">Contract Model</label>
         <select
           value={form.contract_type}
           onChange={e => setForm(prev => ({ ...prev, contract_type: e.target.value as ContractType }))}
-          className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+          className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#39FF14] focus:ring-2 focus:ring-[#39FF14]/20"
         >
           {contractOptions.map(opt => (
             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -207,7 +207,7 @@ export default function JobForm({ onSubmit, initialData, loading }: JobFormProps
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-green-500 hover:bg-green-600 disabled:opacity-50 text-black font-semibold rounded-lg transition-colors"
+        className="btn-cta-green w-full py-3 font-heading font-semibold disabled:opacity-50"
       >
         {loading ? 'Saving...' : 'Publish Job'}
       </button>

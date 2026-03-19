@@ -92,6 +92,7 @@ CREATE TABLE candidates (
   linkedin_url TEXT,
   linkedin_scraped_at TIMESTAMPTZ,
   linkedin_raw_json JSONB, -- dados extraídos do LinkedIn
+  profile_scraped BOOLEAN NOT NULL DEFAULT FALSE,
 
   -- Localização & Relocação
   location_city TEXT,
@@ -120,6 +121,8 @@ CREATE TABLE candidates (
   intro_video_url TEXT,
   intro_video_transcript TEXT,
   intro_video_translations JSONB, -- {"en": "...", "es": "...", ...}
+  transcript_json JSONB, -- {"original":"...", "language":"pt|auto", ...}
+  translation_json JSONB, -- {"en":"...", "es":"...", "fr":"...", "it":"...", "de":"..."}
 
   -- Scores
   overall_score NUMERIC(5,2) DEFAULT 0,
@@ -227,9 +230,11 @@ CREATE TABLE matchings (
   score_cultural NUMERIC(5,2) DEFAULT 0, -- Claude: fit cultural
   score_seniority NUMERIC(5,2) DEFAULT 0,-- Gemini: senioridade/salário
   score_skills NUMERIC(5,2) DEFAULT 0,   -- Deepseek: skills específicas
+  score_specialized NUMERIC(5,2) DEFAULT 0, -- Deepseek R1: fit especializado (SAP/IA/ML/DevOps)
 
   -- Score breakdown (audit trail)
   score_details JSONB, -- detalhamento completo dos scores
+  explanation_json JSONB, -- explicação legível para dashboard da empresa
   llm_models_used TEXT[], -- quais LLMs participaram
 
   -- Status
@@ -374,6 +379,7 @@ CREATE TABLE contracts (
   -- DocuSign
   docusign_envelope_id TEXT,
   docusign_url TEXT,
+  docusign_status TEXT DEFAULT 'pending',
   signed_at TIMESTAMPTZ,
 
   -- Garantia 90 dias

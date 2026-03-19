@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
 export default function Header() {
   const { t } = useTranslation()
@@ -19,11 +20,11 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-gray-950/80 backdrop-blur-md border-b border-gray-800">
+    <header className="sticky top-0 z-50 bg-[#0A0A0A]/85 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className={`text-xl font-bold font-['Orbitron'] ${isCompany ? 'text-green-400' : 'text-cyan-400'} drop-shadow-[0_0_10px_rgba(0,217,255,0.3)]`}>
+          <span className={`text-xl font-heading font-bold ${isCompany ? 'text-[#39FF14] text-glow-green' : 'text-[#00F0FF] text-glow-cyan'}`}>
             TalonHire
           </span>
         </Link>
@@ -45,11 +46,11 @@ export default function Header() {
                 <NavLink to="/admin/dashboard">{t('nav.dashboard')}</NavLink>
               )}
 
-              <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-700">
-                <span className="text-sm text-gray-400 hidden lg:block">{profile?.full_name}</span>
+              <div className="flex items-center gap-3 ml-4 pl-4 border-l border-white/10">
+                <span className="text-sm font-body text-gray-400 hidden lg:block">{profile?.full_name}</span>
                 <button
                   onClick={handleSignOut}
-                  className="text-sm text-gray-500 hover:text-white transition-colors"
+                  className="text-sm font-body text-gray-500 hover:text-white transition-colors"
                 >
                   {t('nav.signOut')}
                 </button>
@@ -60,7 +61,7 @@ export default function Header() {
               <NavLink to="/auth/login">{t('auth.signIn')}</NavLink>
               <Link
                 to="/auth/signup"
-                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-black font-medium rounded-lg text-sm transition-colors"
+                className="btn-cta-cyan px-4 py-2 font-heading rounded-lg text-sm"
               >
                 {t('nav.getStarted')}
               </Link>
@@ -86,7 +87,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-gray-800 bg-gray-950/95 backdrop-blur-md">
+        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="md:hidden border-t border-white/10 bg-[#0A0A0A]/95 backdrop-blur-md">
           <div className="px-4 py-4 space-y-3">
             {user ? (
               <>
@@ -104,7 +105,7 @@ export default function Header() {
                 )}
                 <button
                   onClick={() => { handleSignOut(); setMenuOpen(false) }}
-                  className="w-full text-left text-gray-500 hover:text-white py-2 text-sm"
+                  className="w-full text-left text-gray-500 hover:text-white py-2 text-sm font-body"
                 >
                   {t('nav.signOut')} ({profile?.full_name})
                 </button>
@@ -116,7 +117,7 @@ export default function Header() {
               </>
             )}
           </div>
-        </div>
+        </motion.div>
       )}
     </header>
   )
@@ -124,7 +125,7 @@ export default function Header() {
 
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
-    <Link to={to} className="text-sm text-gray-400 hover:text-white transition-colors">
+    <Link to={to} className="text-sm font-body text-gray-400 hover:text-[#00F0FF] transition-colors">
       {children}
     </Link>
   )
@@ -132,7 +133,7 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
 
 function MobileLink({ to, onClick, children }: { to: string; onClick: () => void; children: React.ReactNode }) {
   return (
-    <Link to={to} onClick={onClick} className="block text-gray-300 hover:text-white py-2 text-sm">
+    <Link to={to} onClick={onClick} className="block font-body text-gray-300 hover:text-[#00F0FF] py-2 text-sm">
       {children}
     </Link>
   )

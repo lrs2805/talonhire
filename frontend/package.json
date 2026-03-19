@@ -14,14 +14,17 @@
     "supabase:types": "npx supabase gen types typescript --project-id zluwxdsjtvqhguxdhsxm > src/types/database.generated.ts"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.43.0",
+    "@fontsource/orbitron": "^5.2.8",
+    "@fontsource/rajdhani": "^5.2.7",
     "@stripe/stripe-js": "^3.0.0",
+    "@supabase/supabase-js": "^2.43.0",
     "framer-motion": "^11.0.0",
     "i18next": "^23.10.0",
     "i18next-browser-languagedetector": "^7.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^14.1.0",
+    "react-media-recorder": "^1.7.2",
     "react-router-dom": "^7.1.1",
     "recharts": "^2.12.0"
   },

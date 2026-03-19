@@ -16,6 +16,7 @@ const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const SharePage = lazy(() => import('./pages/SharePage'))
 const JobNewPage = lazy(() => import('./pages/JobNewPage'))
+const CandidateInterviewPage = lazy(() => import('./pages/CandidateInterviewPage'))
 
 function AppRoutes() {
   const { profile } = useAuth()
@@ -44,6 +45,11 @@ function AppRoutes() {
       <Route path="/candidate/dashboard" element={
         <ProtectedRoute allowedRoles={['candidate']}>
           <CandidateDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/candidate/interview/:matchId" element={
+        <ProtectedRoute allowedRoles={['candidate']}>
+          <CandidateInterviewPage />
         </ProtectedRoute>
       } />
 
@@ -77,7 +83,7 @@ export default function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <div className="min-h-screen bg-gray-950 text-white relative">
+          <div className="min-h-screen bg-[#0A0A0A] text-white relative">
             <Header />
             <div className="fixed top-4 right-20 z-[100]">
               <LanguageSwitcher />

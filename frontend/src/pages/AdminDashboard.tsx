@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { supabase } from '../lib/supabase'
+import ParticlesBackground from '../components/ParticlesBackground'
 
 interface AdminStats {
   totalCompanies: number
@@ -53,22 +55,26 @@ export default function AdminDashboard() {
   ]
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-white font-['Orbitron'] mb-8">Admin Dashboard</h1>
+    <div className="min-h-screen bg-[#0A0A0A] relative scan-lines">
+      <ParticlesBackground density={0.3} />
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
+      <h1 className="font-heading text-3xl font-bold text-white text-glow-cyan mb-8">Admin Dashboard</h1>
 
       {/* Navigation */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
         {navLinks.map(link => (
+          <motion.div whileHover={{ scale: 1.05 }} key={link.to}>
           <Link
             key={link.to}
             to={link.to}
-            className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 text-center hover:border-cyan-500/40 transition-colors group"
+            className="card-neon horizons-card-hover rounded-xl p-4 text-center transition-colors group block"
           >
-            <svg className="w-8 h-8 mx-auto text-gray-500 group-hover:text-cyan-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-8 h-8 mx-auto text-gray-500 group-hover:text-[#00F0FF] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={link.icon} />
             </svg>
-            <span className="text-sm text-gray-400 group-hover:text-white mt-2 block">{link.label}</span>
+            <span className="font-body text-sm text-gray-400 group-hover:text-white mt-2 block">{link.label}</span>
           </Link>
+          </motion.div>
         ))}
       </div>
 
@@ -90,24 +96,25 @@ export default function AdminDashboard() {
 
       {/* Conversion funnel hint */}
       {!loading && stats.totalMatches > 0 && stats.activeContracts > 0 && (
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-          <h3 className="text-white font-medium mb-2">Conversion Rate</h3>
+        <motion.div whileHover={{ scale: 1.05 }} className="card-neon horizons-card-hover rounded-xl p-6">
+          <h3 className="font-heading text-white font-medium mb-2">Conversion Rate</h3>
           <div className="flex items-center gap-4">
-            <div className="flex-1 bg-gray-700 rounded-full h-3">
+            <div className="flex-1 bg-white/10 rounded-full h-3">
               <div
-                className="bg-gradient-to-r from-cyan-500 to-green-500 h-3 rounded-full transition-all"
+                className="bg-gradient-to-r from-[#00F0FF] to-[#39FF14] h-3 rounded-full transition-all"
                 style={{ width: `${Math.min(100, (stats.activeContracts / stats.totalMatches) * 100)}%` }}
               />
             </div>
-            <span className="text-cyan-400 font-bold">
+            <span className="font-heading text-[#00F0FF] text-glow-cyan font-bold">
               {((stats.activeContracts / stats.totalMatches) * 100).toFixed(1)}%
             </span>
           </div>
-          <p className="text-gray-500 text-sm mt-2">
+          <p className="font-body text-gray-500 text-sm mt-2">
             {stats.activeContracts} contracts from {stats.totalMatches} matches
           </p>
-        </div>
+        </motion.div>
       )}
+      </div>
     </div>
   )
 }
@@ -126,15 +133,15 @@ function AdminStatCard({
   highlight?: boolean
 }) {
   return (
-    <div className={`bg-gray-800/50 border rounded-xl p-6 ${highlight ? 'border-green-500/30' : 'border-gray-700'}`}>
-      <p className="text-sm text-gray-400">{label}</p>
+    <motion.div whileHover={{ scale: 1.05 }} className={`card-neon horizons-card-hover border rounded-xl p-6 ${highlight ? 'card-neon-green horizons-card-hover-green border-[#39FF14]/30' : 'border-white/10'}`}>
+      <p className="font-body text-sm text-gray-400">{label}</p>
       {loading ? (
-        <div className="h-9 w-24 bg-gray-700 animate-pulse rounded mt-1" />
+        <div className="h-9 w-24 bg-white/10 animate-pulse rounded mt-1" />
       ) : (
-        <p className={`text-3xl font-bold mt-1 ${highlight ? 'text-green-400' : 'text-white'}`}>
+        <p className={`font-heading text-3xl font-bold mt-1 ${highlight ? 'text-[#39FF14] text-glow-green' : 'text-white'}`}>
           {format ? format(value) : value.toLocaleString()}
         </p>
       )}
-    </div>
+    </motion.div>
   )
 }

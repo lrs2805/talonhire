@@ -135,6 +135,8 @@ export type Database = {
           intro_video_transcript: string | null
           intro_video_translations: Json | null
           intro_video_url: string | null
+          transcript_json: Json | null
+          translation_json: Json | null
           linkedin_raw_json: Json | null
           linkedin_scraped_at: string | null
           linkedin_url: string | null
@@ -142,6 +144,7 @@ export type Database = {
           location_country: string
           overall_score: number | null
           primary_role: string | null
+          profile_scraped: boolean
           profile_id: string
           profile_summary: string | null
           relocation_countries: string[] | null
@@ -168,6 +171,8 @@ export type Database = {
           intro_video_transcript?: string | null
           intro_video_translations?: Json | null
           intro_video_url?: string | null
+          transcript_json?: Json | null
+          translation_json?: Json | null
           linkedin_raw_json?: Json | null
           linkedin_scraped_at?: string | null
           linkedin_url?: string | null
@@ -175,6 +180,7 @@ export type Database = {
           location_country?: string
           overall_score?: number | null
           primary_role?: string | null
+          profile_scraped?: boolean
           profile_id: string
           profile_summary?: string | null
           relocation_countries?: string[] | null
@@ -201,6 +207,8 @@ export type Database = {
           intro_video_transcript?: string | null
           intro_video_translations?: Json | null
           intro_video_url?: string | null
+          transcript_json?: Json | null
+          translation_json?: Json | null
           linkedin_raw_json?: Json | null
           linkedin_scraped_at?: string | null
           linkedin_url?: string | null
@@ -208,6 +216,7 @@ export type Database = {
           location_country?: string
           overall_score?: number | null
           primary_role?: string | null
+          profile_scraped?: boolean
           profile_id?: string
           profile_summary?: string | null
           relocation_countries?: string[] | null
@@ -307,6 +316,7 @@ export type Database = {
           contract_type: Database["public"]["Enums"]["contract_type"]
           created_at: string
           docusign_envelope_id: string | null
+          docusign_status: string | null
           docusign_url: string | null
           end_date: string | null
           fee_base_salary: number | null
@@ -333,6 +343,7 @@ export type Database = {
           contract_type: Database["public"]["Enums"]["contract_type"]
           created_at?: string
           docusign_envelope_id?: string | null
+          docusign_status?: string | null
           docusign_url?: string | null
           end_date?: string | null
           fee_base_salary?: number | null
@@ -359,6 +370,7 @@ export type Database = {
           contract_type?: Database["public"]["Enums"]["contract_type"]
           created_at?: string
           docusign_envelope_id?: string | null
+          docusign_status?: string | null
           docusign_url?: string | null
           end_date?: string | null
           fee_base_salary?: number | null
@@ -632,6 +644,7 @@ export type Database = {
           candidate_id: string
           company_feedback: string | null
           created_at: string
+          explanation_json: Json | null
           id: string
           job_id: string
           llm_models_used: string[] | null
@@ -644,6 +657,7 @@ export type Database = {
           score_overall: number
           score_semantic: number | null
           score_seniority: number | null
+          score_specialized: number | null
           score_skills: number | null
           score_tech: number | null
           share_expires_at: string | null
@@ -656,6 +670,7 @@ export type Database = {
           candidate_id: string
           company_feedback?: string | null
           created_at?: string
+          explanation_json?: Json | null
           id?: string
           job_id: string
           llm_models_used?: string[] | null
@@ -668,6 +683,7 @@ export type Database = {
           score_overall?: number
           score_semantic?: number | null
           score_seniority?: number | null
+          score_specialized?: number | null
           score_skills?: number | null
           score_tech?: number | null
           share_expires_at?: string | null
@@ -680,6 +696,7 @@ export type Database = {
           candidate_id?: string
           company_feedback?: string | null
           created_at?: string
+          explanation_json?: Json | null
           id?: string
           job_id?: string
           llm_models_used?: string[] | null
@@ -692,6 +709,7 @@ export type Database = {
           score_overall?: number
           score_semantic?: number | null
           score_seniority?: number | null
+          score_specialized?: number | null
           score_skills?: number | null
           score_tech?: number | null
           share_expires_at?: string | null

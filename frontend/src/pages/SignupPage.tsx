@@ -1,7 +1,11 @@
-import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect, type FormEvent } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
+import { scrapeLinkedIn, generateEmbedding, type ScrapedLinkedInProfile } from '../lib/edgeFunctions'
+import ParticlesBackground from '../components/ParticlesBackground'
 import type { UserRole } from '../types/database'
 
 type SignupRole = 'candidate' | 'company'
@@ -10,7 +14,13 @@ export default function SignupPage() {
   const { t } = useTranslation()
   const { signUp } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [role, setRole] = useState<SignupRole>('candidate')
+
+  useEffect(() => {
+    const fromLanding = (location.state as { role?: SignupRole })?.role
+    if (fromLanding === 'candidate' || fromLanding === 'company') setRole(fromLanding)
+  }, [location.state])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -23,6 +33,12 @@ export default function SignupPage() {
   const [fullName, setFullName] = useState('')
   const [locationCity, setLocationCity] = useState('')
   const [locationCountry, setLocationCountry] = useState('BR')
+  const [linkedinUrl, setLinkedinUrl] = useState('')
+  const [linkedinImportRequested, setLinkedinImportRequested] = useState(false)
+  const [linkedinImportLoading, setLinkedinImportLoading] = useState(false)
+  const [linkedinFallback, setLinkedinFallback] = useState<ScrapedLinkedInProfile | null>(null)
+  const [showLinkedinFallback, setShowLinkedinFallback] = useState(false)
+  const [candidateIdForFallback, setCandidateIdForFallback] = useState<string | null>(null)
 
   // Company fields
   const [companyName, setCompanyName] = useState('')
@@ -44,7 +60,36 @@ export default function SignupPage() {
         : { full_name: companyName, company_name: companyName, country }
 
       await signUp(email, password, role as UserRole, metadata)
-      navigate(role === 'candidate' ? '/candidate/dashboard' : '/company/dashboard')
+      if (role === 'candidate' && linkedinUrl.trim() && linkedinImportRequested) {
+        setLinkedinImportLoading(true)
+        const { data: { user: u } } = await supabase.auth.getUser()
+        if (u) {
+          const { data: cand } = await supabase.from('candidates').select('id').eq('profile_id', u.id).single()
+          if (cand) {
+            setCandidateIdForFallback(cand.id)
+            const res = await scrapeLinkedIn(linkedinUrl.trim(), cand.id)
+            if (res.success) {
+              const text = res.embeddingText || res.plainText || ''
+              if (text) await generateEmbedding('cv', cand.id, text)
+              setLinkedinImportLoading(false)
+              navigate('/candidate/dashboard', { state: { linkedin_url: linkedinUrl.trim() } })
+              return
+            }
+            setLinkedinImportLoading(false)
+            if (res.data) {
+              setLinkedinFallback(res.data)
+              setShowLinkedinFallback(true)
+              setError(res.error || 'LinkedIn import partially failed. Review and save fields manually.')
+              return
+            }
+            setError(res.error || 'LinkedIn import failed.')
+          }
+        }
+        setLinkedinImportLoading(false)
+        navigate('/candidate/dashboard', { state: { linkedin_url: linkedinUrl.trim() } })
+      } else {
+        navigate(role === 'candidate' ? '/candidate/dashboard' : '/company/dashboard')
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to create account')
     } finally {
@@ -53,22 +98,23 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md">
-        <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 backdrop-blur-sm">
-          <h1 className="text-2xl font-bold text-white font-['Orbitron'] text-center mb-2">
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-8 bg-[#0A0A0A] relative scan-lines">
+      <ParticlesBackground density={0.35} />
+      <div className="w-full max-w-md relative z-10">
+        <motion.div whileHover={{ scale: 1.05 }} className="card-neon horizons-card-hover rounded-2xl p-6 sm:p-8">
+          <h1 className="font-heading text-2xl font-bold text-white text-center mb-2 text-glow-cyan">
             {t('auth.join')}
           </h1>
-          <p className="text-gray-400 text-center mb-6">{t('auth.createAccount')}</p>
+          <p className="font-body text-gray-400 text-center mb-6">{t('auth.createAccount')}</p>
 
           <div className="flex gap-3 mb-6">
             <button
               type="button"
               onClick={() => setRole('candidate')}
-              className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+              className={`flex-1 py-3 rounded-xl font-heading font-medium transition-all ${
                 role === 'candidate'
-                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
-                  : 'bg-gray-900/50 text-gray-500 border border-gray-700 hover:border-gray-600'
+                  ? 'bg-[#00F0FF]/20 text-[#00F0FF] border border-[#00F0FF]/40 shadow-[0_0_20px_rgba(0,240,255,0.2)]'
+                  : 'bg-[#0A0A0A]/80 text-gray-500 border border-white/10 hover:border-white/20'
               }`}
             >
               {t('auth.candidate')}
@@ -76,10 +122,10 @@ export default function SignupPage() {
             <button
               type="button"
               onClick={() => setRole('company')}
-              className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+              className={`flex-1 py-3 rounded-xl font-heading font-medium transition-all ${
                 role === 'company'
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/40'
-                  : 'bg-gray-900/50 text-gray-500 border border-gray-700 hover:border-gray-600'
+                  ? 'bg-[#39FF14]/20 text-[#39FF14] border border-[#39FF14]/40 shadow-[0_0_20px_rgba(57,255,20,0.2)]'
+                  : 'bg-[#0A0A0A]/80 text-gray-500 border border-white/10 hover:border-white/20'
               }`}
             >
               {t('auth.company')}
@@ -97,15 +143,29 @@ export default function SignupPage() {
             {role === 'candidate' ? (
               <>
                 <Field id="signup-fullName" label={t('auth.fullName')} value={fullName} onChange={setFullName} placeholder="João Silva" required />
+                <Field id="signup-linkedin" label="Cole seu LinkedIn (opcional)" value={linkedinUrl} onChange={setLinkedinUrl} placeholder="linkedin.com/in/seu-usuario" />
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={!linkedinUrl.trim()}
+                    onClick={() => setLinkedinImportRequested(true)}
+                    className={`btn-cta-cyan px-4 py-2 text-xs sm:text-sm font-heading disabled:opacity-50 ${linkedinImportRequested ? 'ring-2 ring-[#00F0FF]/40' : ''} ${linkedinImportLoading ? 'animate-pulse' : ''}`}
+                  >
+                    {linkedinImportLoading ? 'Importando com IA...' : 'Importar Perfil com IA'}
+                  </button>
+                  <span className="font-body text-xs text-gray-500">
+                    {linkedinImportRequested ? 'Será importado automaticamente após criar a conta.' : 'Opcional'}
+                  </span>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Field id="signup-city" label={t('auth.city')} value={locationCity} onChange={setLocationCity} placeholder="São Paulo" />
                   <div>
-                    <label htmlFor="signup-country" className="block text-sm text-gray-400 mb-1.5">{t('auth.country')}</label>
+                    <label htmlFor="signup-country" className="block text-sm text-gray-400 mb-1.5 font-body">{t('auth.country')}</label>
                     <select
                       id="signup-country"
                       value={locationCountry}
                       onChange={e => setLocationCountry(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
+                      className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#00F0FF] focus:ring-2 focus:ring-[#00F0FF]/20"
                     >
                       <option value="BR">Brazil</option>
                       <option value="AR">Argentina</option>
@@ -121,12 +181,12 @@ export default function SignupPage() {
               <>
                 <Field id="signup-companyName" label={t('auth.companyName')} value={companyName} onChange={setCompanyName} placeholder="Acme Tech" required />
                 <div>
-                  <label htmlFor="signup-company-country" className="block text-sm text-gray-400 mb-1.5">{t('auth.country')}</label>
+                  <label htmlFor="signup-company-country" className="block text-sm text-gray-400 mb-1.5 font-body">{t('auth.country')}</label>
                   <select
                     id="signup-company-country"
                     value={country}
                     onChange={e => setCountry(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
+                    className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white font-body focus:outline-none focus:border-[#39FF14] focus:ring-2 focus:ring-[#39FF14]/20"
                   >
                     <option value="PT">Portugal</option>
                     <option value="DE">Germany</option>
@@ -149,31 +209,75 @@ export default function SignupPage() {
                 type="checkbox"
                 checked={consent}
                 onChange={e => setConsent(e.target.checked)}
-                className="mt-1 w-4 h-4 accent-cyan-500"
+                className="mt-1 w-4 h-4 accent-[#00F0FF]"
               />
-              <span className="text-xs text-gray-400 leading-relaxed">{t('auth.consent')}</span>
+              <span className="text-xs text-gray-400 leading-relaxed font-body">{t('auth.consent')}</span>
             </label>
 
             <button
               type="submit"
-              disabled={loading || !consent}
-              className={`w-full py-3 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                role === 'candidate'
-                  ? 'bg-cyan-500 hover:bg-cyan-600 text-black'
-                  : 'bg-green-500 hover:bg-green-600 text-black'
+              disabled={loading || linkedinImportLoading || !consent}
+              className={`w-full py-3 font-heading font-semibold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                role === 'candidate' ? 'btn-cta-cyan' : 'btn-cta-green'
               }`}
             >
-              {loading ? t('auth.creating') : t('auth.createAccountButton')}
+              {loading || linkedinImportLoading ? t('auth.creating') : t('auth.createAccountButton')}
             </button>
           </form>
 
-          <p className="text-gray-500 text-sm text-center mt-6">
+          {showLinkedinFallback && linkedinFallback && (
+            <div className="mt-5 p-4 rounded-xl border border-white/10 bg-[#0A0A0A]/60">
+              <p className="font-heading text-sm text-white mb-3">Fallback manual do LinkedIn</p>
+              <div className="space-y-3">
+                <Field id="li-fb-name" label="Nome" value={linkedinFallback.name ?? ''} onChange={(v) => setLinkedinFallback((p) => p ? { ...p, name: v } : null)} />
+                <Field id="li-fb-headline" label="Headline" value={linkedinFallback.headline ?? ''} onChange={(v) => setLinkedinFallback((p) => p ? { ...p, headline: v } : null)} />
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1.5 font-body">Sobre</label>
+                  <textarea value={linkedinFallback.about ?? ''} onChange={(e) => setLinkedinFallback((p) => p ? { ...p, about: e.target.value } : null)} rows={3} className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white placeholder-gray-500 font-body focus:outline-none focus:border-[#00F0FF] focus:ring-2 focus:ring-[#00F0FF]/20 transition-colors resize-none" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1.5 font-body">Localização</label>
+                  <input value={linkedinFallback.location ?? ''} onChange={(e) => setLinkedinFallback((p) => p ? { ...p, location: e.target.value } : null)} className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white placeholder-gray-500 font-body focus:outline-none focus:border-[#00F0FF] focus:ring-2 focus:ring-[#00F0FF]/20 transition-colors" />
+                </div>
+                <button
+                  type="button"
+                  className="btn-cta-cyan px-4 py-2 font-heading text-sm"
+                  onClick={async () => {
+                    if (!candidateIdForFallback || !linkedinFallback) return
+                    const text = [
+                      linkedinFallback.name,
+                      linkedinFallback.headline,
+                      linkedinFallback.location ? `Location: ${linkedinFallback.location}` : '',
+                      linkedinFallback.about,
+                      ...(linkedinFallback.experience || []).map((e) => [e.title, e.company, e.dates, e.description].filter(Boolean).join(' — ')),
+                      linkedinFallback.skills?.length ? `Skills: ${linkedinFallback.skills.join(', ')}` : '',
+                      ...(linkedinFallback.education || []).map((e) => [e.school, e.degree, e.dates, e.description].filter(Boolean).join(' — ')),
+                      ...(linkedinFallback.projects || []).map((p) => [p.name, p.description, p.url].filter(Boolean).join(' — ')),
+                    ].filter(Boolean).join('\n\n')
+                    await supabase.from('candidates').update({
+                      cv_text: text.slice(0, 50000),
+                      linkedin_raw_json: linkedinFallback as unknown as Record<string, unknown>,
+                      linkedin_scraped_at: new Date().toISOString(),
+                      profile_scraped: true,
+                      updated_at: new Date().toISOString(),
+                    }).eq('id', candidateIdForFallback)
+                    await generateEmbedding('cv', candidateIdForFallback, text)
+                    navigate('/candidate/dashboard', { state: { linkedin_url: linkedinUrl.trim() } })
+                  }}
+                >
+                  Salvar fallback e continuar
+                </button>
+              </div>
+            </div>
+          )}
+
+          <p className="font-body text-gray-500 text-sm text-center mt-6">
             {t('auth.alreadyHaveAccount')}{' '}
-            <Link to="/auth/login" className="text-cyan-400 hover:text-cyan-300">
+            <Link to="/auth/login" className="text-[#00F0FF] hover:text-[#00F0FF]/80 font-body">
               {t('auth.signIn')}
             </Link>
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   )
@@ -186,7 +290,7 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm text-gray-400 mb-1.5">{label}</label>
+      <label htmlFor={id} className="block text-sm text-gray-400 mb-1.5 font-body">{label}</label>
       <input
         id={id}
         type={type}
@@ -194,7 +298,7 @@ function Field({
         onChange={e => onChange(e.target.value)}
         required={required}
         minLength={minLength}
-        className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 transition-colors"
+        className="w-full px-4 py-3 bg-[#0A0A0A]/80 border border-white/10 rounded-lg text-white placeholder-gray-500 font-body focus:outline-none focus:border-[#00F0FF] focus:ring-2 focus:ring-[#00F0FF]/20 transition-colors"
         placeholder={placeholder}
         aria-required={required}
       />
