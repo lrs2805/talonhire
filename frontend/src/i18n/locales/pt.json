@@ -1,0 +1,114 @@
+{
+  "landing": {
+    "hero": {
+      "title": "TalonHire",
+      "tagline": "Recrutamento com IA que captura o talento perfeito com precisão cirúrgica.",
+      "subtitle": "Conecte talentos tech LATAM com empresas da Europa e EUA.",
+      "ctaCandidate": "Sou Candidato",
+      "ctaCompany": "Contratar Talentos"
+    },
+    "howItWorks": "Como Funciona",
+    "steps": {
+      "01": { "title": "Crie seu perfil", "desc": "Envie seu CV ou cole o link do LinkedIn. A IA extrai skills, experiência e stack automaticamente." },
+      "02": { "title": "Matching por IA", "desc": "Motor multi-LLM (GPT-4o, Claude, Gemini) avalia fit técnico, cultural e senioridade." },
+      "03": { "title": "Seja contratado", "desc": "Receba matches, grave vídeos de entrevista e feche ofertas. Empresas economizam 40–60%." }
+    },
+    "stats": {
+      "savings": "Economia",
+      "matchTime": "Tempo de match",
+      "languages": "Idiomas",
+      "aiModels": "Modelos de IA"
+    }
+  },
+  "nav": {
+    "dashboard": "Painel",
+    "postJob": "Publicar Vaga",
+    "signOut": "Sair",
+    "getStarted": "Começar"
+  },
+  "auth": {
+    "join": "Entrar no TalonHire",
+    "createAccount": "Criar conta",
+    "candidate": "Candidato",
+    "company": "Empresa",
+    "fullName": "Nome completo",
+    "companyName": "Nome da empresa",
+    "email": "E-mail",
+    "password": "Senha",
+    "city": "Cidade",
+    "country": "País",
+    "consent": "Autorizo o TalonHire a armazenar e processar meus dados para recrutamento por até 90 dias, em conformidade com LGPD e GDPR. Posso solicitar exclusão a qualquer momento.",
+    "signIn": "Entrar",
+    "welcomeBack": "Bem-vindo de volta",
+    "signInToAccount": "Entre na sua conta TalonHire",
+    "signingIn": "Entrando...",
+    "dontHaveAccount": "Não tem conta?",
+    "signUp": "Cadastre-se",
+    "alreadyHaveAccount": "Já tem conta?",
+    "createAccountButton": "Criar conta",
+    "creating": "Criando conta..."
+  },
+  "dashboard": {
+    "welcome": "Bem-vindo",
+    "profileActive": "Seu perfil está ativo e visível para empresas.",
+    "completeProfile": "Complete seu perfil para começar a receber matches.",
+    "activeMatches": "Matches Ativos",
+    "pendingInterviews": "Entrevistas Pendentes",
+    "recordedVideos": "Vídeos Gravados",
+    "profileCompletion": "Completude do Perfil",
+    "recentMatches": "Matches Recentes",
+    "noMatches": "Nenhum match ainda. Complete seu perfil e envie seu CV para receber matches por IA.",
+    "loadingMatches": "Carregando matches...",
+    "updateAiProfile": "Atualizar perfil IA",
+    "updateAiHint": "Atualize seu perfil de IA para aparecer em mais matches.",
+    "updating": "Atualizando...",
+    "aiUpdated": "Perfil IA atualizado. Você aparecerá em mais matches.",
+    "addCvFirst": "Adicione o texto do CV primeiro.",
+    "activeJobs": "Vagas Ativas",
+    "candidatesInPipeline": "Candidatos no Pipeline",
+    "pendingMatchesLabel": "Matches Pendentes",
+    "closedContracts": "Contratos Fechados",
+    "yourJobs": "Suas Vagas",
+    "noJobs": "Nenhuma vaga publicada. Crie sua primeira vaga para receber candidatos por IA.",
+    "runMatching": "Rodar matching",
+    "running": "Rodando...",
+    "postNewJob": "Publicar Vaga",
+    "plan": "Plano",
+    "totalCompanies": "Total de Empresas",
+    "totalCandidates": "Total de Candidatos",
+    "totalMatches": "Total de Matches",
+    "activeContracts": "Contratos Ativos",
+    "totalRevenue": "Receita Total",
+    "conversionRate": "Taxa de Conversão",
+    "contractsFromMatches": "{{contracts}} contratos de {{matches}} matches",
+    "adminDashboard": "Painel Admin"
+  },
+  "job": {
+    "postNew": "Publicar Nova Vaga",
+    "createHint": "Crie uma vaga para receber candidatos por IA.",
+    "published": "Vaga publicada. Matching por IA executado.",
+    "runMatchingAfter": "Rodar matching por IA após criar vaga",
+    "backToDashboard": "Painel"
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Algo deu errado",
+    "reload": "Recarregar",
+    "remote": "Remoto"
+  },
+  "share": {
+    "title": "Match TalonHire",
+    "expired": "Este link expirou.",
+    "invalid": "Link inválido.",
+    "candidateFor": "Candidato para",
+    "hire": "Contratar",
+    "reject": "Rejeitar",
+    "rejected": "Este candidato foi marcado como rejeitado. Obrigado pelo feedback.",
+    "rejectConfirm": "Rejeitar este candidato?",
+    "rejectHint": "Opcional: adicione um motivo (usado para melhorar matches futuros).",
+    "rejectPlaceholder": "ex: Senioridade diferente, stack diferente...",
+    "rejecting": "Rejeitando...",
+    "cancel": "Cancelar",
+    "videoHint": "Vídeo e transcrição serão exibidos quando disponíveis. Por enquanto, use o painel da empresa para ver detalhes completos."
+  }
+}

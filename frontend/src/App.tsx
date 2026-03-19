@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
+import LanguageSwitcher from './components/LanguageSwitcher'
+import Header from './components/Header'
 
 // Lazy-loaded pages
 const LandingPage = lazy(() => import('./pages/LandingPage'))
@@ -12,6 +14,8 @@ const SignupPage = lazy(() => import('./pages/SignupPage'))
 const CandidateDashboard = lazy(() => import('./pages/CandidateDashboard'))
 const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
+const SharePage = lazy(() => import('./pages/SharePage'))
+const JobNewPage = lazy(() => import('./pages/JobNewPage'))
 
 function AppRoutes() {
   const { profile } = useAuth()
@@ -34,6 +38,7 @@ function AppRoutes() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/signup" element={<SignupPage />} />
+      <Route path="/share/:token" element={<SharePage />} />
 
       {/* Candidate */}
       <Route path="/candidate/dashboard" element={
@@ -46,6 +51,11 @@ function AppRoutes() {
       <Route path="/company/dashboard" element={
         <ProtectedRoute allowedRoles={['company']}>
           <CompanyDashboard />
+        </ProtectedRoute>
+      } />
+      <Route path="/company/jobs/new" element={
+        <ProtectedRoute allowedRoles={['company']}>
+          <JobNewPage />
         </ProtectedRoute>
       } />
 
@@ -67,7 +77,11 @@ export default function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <div className="min-h-screen bg-gray-950 text-white">
+          <div className="min-h-screen bg-gray-950 text-white relative">
+            <Header />
+            <div className="fixed top-4 right-20 z-[100]">
+              <LanguageSwitcher />
+            </div>
             <Suspense fallback={<LoadingSpinner />}>
               <AppRoutes />
             </Suspense>

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
+import { runMatching } from '../lib/edgeFunctions'
 import type { Company, Job } from '../types/database'
 
 interface CompanyStats {
@@ -28,60 +29,44 @@ export default function CompanyDashboard() {
       .then(({ data }) => { if (data) setCompany(data) })
   }, [user])
 
-  // Fetch stats and jobs
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!company) return
-
-    Promise.all([
-      supabase
-        .from('jobs')
-        .select('id', { count: 'exact', head: true })
-        .eq('company_id', company.id)
-        .eq('status', 'active'),
-      supabase
-        .from('matchings')
-        .select('id', { count: 'exact', head: true })
-        .in('job_id', []) // will be filled with job IDs
-        .in('status', ['sent_to_company', 'viewed', 'interview_requested', 'accepted']),
-      supabase
-        .from('contracts')
-        .select('id', { count: 'exact', head: true })
-        .eq('company_id', company.id)
-        .in('status', ['signed', 'active', 'completed']),
-      supabase
-        .from('jobs')
-        .select('*')
-        .eq('company_id', company.id)
-        .order('created_at', { ascending: false })
-        .limit(5),
-    ]).then(([jobsRes, _matchesRes, contractsRes, recentRes]) => {
-      setStats({
-        activeJobs: jobsRes.count || 0,
-        totalCandidates: 0, // calculated from matches
-        closedContracts: contractsRes.count || 0,
-        pendingMatches: 0,
-      })
-      if (recentRes.data) setRecentJobs(recentRes.data)
-    })
-
-    // Fetch candidate pipeline count separately (needs job IDs)
-    supabase
+    const { data: jobsList } = await supabase
       .from('jobs')
-      .select('id')
+      .select('id, title, seniority, required_stack, remote, status, created_at')
       .eq('company_id', company.id)
-      .then(({ data: jobData }) => {
-        if (!jobData?.length) return
-        const jobIds = jobData.map(j => j.id)
-        supabase
-          .from('matchings')
-          .select('id', { count: 'exact', head: true })
-          .in('job_id', jobIds)
-          .in('status', ['sent_to_company', 'viewed', 'interview_requested', 'accepted'])
-          .then(({ count }) => {
-            setStats(prev => ({ ...prev, totalCandidates: count || 0, pendingMatches: count || 0 }))
-          })
-      })
+      .order('created_at', { ascending: false })
+    const activeCount = jobsList?.filter(j => j.status === 'active').length ?? 0
+    const recentJobsList = (jobsList ?? []).slice(0, 5)
+    setRecentJobs(recentJobsList as Job[])
+    const jobIds = (jobsList ?? []).map(j => j.id)
+    const pipelineStatuses = ['sent_to_company', 'viewed', 'interview_requested', 'accepted']
+    const [contractsRes, matchingsRes] = await Promise.all([
+      supabase.from('contracts').select('id', { count: 'exact', head: true }).eq('company_id', company.id).in('status', ['signed', 'active', 'completed']),
+      jobIds.length > 0 ? supabase.from('matchings').select('id', { count: 'exact', head: true }).in('job_id', jobIds).in('status', pipelineStatuses) : { count: 0 },
+    ])
+    const pipelineCount = matchingsRes.count ?? 0
+    setStats({ activeJobs: activeCount, totalCandidates: pipelineCount, pendingMatches: pipelineCount, closedContracts: contractsRes.count ?? 0 })
   }, [company])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  const [matchingJobId, setMatchingJobId] = useState<string | null>(null)
+  const [matchingMessage, setMatchingMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const runMatchingForJob = useCallback(async (jobId: string) => {
+    setMatchingJobId(jobId)
+    setMatchingMessage(null)
+    const result = await runMatching(jobId)
+    setMatchingJobId(null)
+    if (result.error) {
+      setMatchingMessage({ type: 'error', text: result.error })
+    } else {
+      setMatchingMessage({ type: 'success', text: `Created ${result.created} new match(es).` })
+      load()
+    }
+  }, [load])
 
   const statusColors: Record<string, string> = {
     active: 'bg-green-500/20 text-green-400',
@@ -128,6 +113,11 @@ export default function CompanyDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
+            {matchingMessage && (
+              <div role="alert" className={`px-4 py-2 rounded-lg text-sm ${matchingMessage.type === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                {matchingMessage.text}
+              </div>
+            )}
             {recentJobs.map(job => (
               <div key={job.id} className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 flex items-center justify-between hover:border-green-500/30 transition-colors">
                 <div>
@@ -138,9 +128,19 @@ export default function CompanyDashboard() {
                     {job.remote && <span className="text-green-400">Remote</span>}
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${statusColors[job.status] || ''}`}>
-                  {job.status}
-                </span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => runMatchingForJob(job.id)}
+                    disabled={matchingJobId !== null}
+                    className="px-3 py-1.5 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded-lg text-xs font-medium disabled:opacity-50"
+                  >
+                    {matchingJobId === job.id ? 'Running...' : 'Run matching'}
+                  </button>
+                  <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${statusColors[job.status] || ''}`}>
+                    {job.status}
+                  </span>
+                </div>
               </div>
             ))}
           </div>

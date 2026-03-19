@@ -1,123 +1,110 @@
 # TalonHire — Análise & Melhorias
 
-## Status Atual
+> **Análise detalhada:** [ANALISE-TALONHIRE.md](./ANALISE-TALONHIRE.md).  
+> **Setup Supabase e Edge Functions:** [scripts/README.md](./scripts/README.md).  
+> **Quick start:** [README.md](./README.md).
 
-O projeto foi gerado pelo Horizons (Replit AI) e tem uma boa base de frontend mas backend incompleto.
+---
 
-**Stack real (diferente do prompt):**
-- Frontend: React 18 + Vite (NÃO Next.js)
-- Backend: FastAPI (NÃO Next.js API routes)
-- Sem migrations, sem schema SQL definido
+## Checklist de estado
+
+### ✅ Implementado (no repositório)
+
+| Item | Descrição |
+|------|-----------|
+| **Credenciais** | Apenas env vars (`VITE_SUPABASE_*`), sem fallbacks; erro claro se faltarem. |
+| **Slug empresa no signup** | Fallback `company-{userId.slice(0,8)}` quando o nome não gera slug válido. |
+| **Landing Tailwind** | Classes fixas (cyan/green/purple) nos steps "How it works" para o build. |
+| **Pipeline de embeddings** | Edge Function `generate-embedding` (OpenAI → candidates/jobs). Frontend: botão "Update AI profile" no CandidateDashboard; JobNewPage chama após criar vaga. |
+| **Matching pgvector** | Edge Function `run-matching`. Frontend: botão "Run matching" por vaga no CompanyDashboard; JobNewPage opção "Run AI matching after creating job". |
+| **Share 48h** | Rota `/share/:token`, validação, CTAs Contratar / Rejeitar. Botão Rejeitar abre modal (motivo opcional) e chama Edge Function **reject-match** (atualiza `status: 'rejected'`, `rejection_reason`). |
+| **Rate limiting** | Todas as Edge Functions (`generate-embedding`, `run-matching`, `reject-match`) com rate limit por IP (30 req/min, `_shared/rateLimit.ts`). |
+| **Seletor de idioma** | Componente `LanguageSwitcher` (PT, EN, ES, FR, IT, DE) fixo no topo direito da app (`App.tsx`). |
+| **Redirect após login** | `LoginPage` redireciona por role: company → `/company/dashboard`, admin → `/admin/dashboard`, resto → `/candidate/dashboard`. `signIn` devolve perfil para decidir. |
+| **Rota `/company/jobs/new`** | Página `JobNewPage` com `JobForm`, criação de vaga, chamada a `generate-embedding` (jd) e opção de `run-matching` após criar. |
+| **Stats CompanyDashboard** | Uma única fonte (`load()`); botão "Run matching" por vaga com feedback inline. |
+| **i18n** | Locales PT, EN, ES, FR, IT, DE + `react-i18next` na Landing, Signup, Login, Share. |
+| **Testes** | Vitest: AuthContext, useJobs, useShareLink, SharePage (token válido / expirado). `npm run test:run`. |
+| **Acessibilidade** | Signup/Login: `id`, `htmlFor`, `focus:ring`, `aria-required`, `autoComplete`. Erros e alertas com `role="alert"`. SharePage modal com `role="dialog"`, `aria-modal`, `aria-labelledby`. |
+| **Loading e feedback** | Mensagens de sucesso/erro inline em JobNewPage, CompanyDashboard (matching), CandidateDashboard (embedding). |
+| **README na raiz** | [README.md](./README.md) com quick start, scripts, layout do projeto e deploy das Edge Functions. |
+| **Scripts/README** | Instruções para schema, storage e deploy (incl. **reject-match**). |
+| **TypeScript, Error Boundary, Paginação** | Já existentes. |
+
+### ⏳ Pendente (passos manuais)
+
+| Item | O que fazer |
+|------|-------------|
+| **Schema no Supabase** | Executar `supabase-schema.sql` e `setup-storage-buckets.sql` no SQL Editor (ver [scripts/README.md](./scripts/README.md)). |
+| **RLS** | Políticas no schema; ativas ao aplicar o schema. |
+| **Edge Functions em produção** | Deploy de `generate-embedding`, `run-matching`, `reject-match`; configurar `OPENAI_API_KEY` nos secrets. |
+
+### ❌ Não implementado (adiado ou opcional)
+
+| Item | Nota |
+|------|------|
+| **Migração para Next.js 15** | Mantido Vite + Edge Functions. |
+| **Scraping LinkedIn, Stripe, DocuSign, Resend, WhatsApp** | Integrações previstas no prompt; trabalho futuro. |
+| **Webhook feedback loop, Realtime nos dashboards, multi-tenant** | Sugestões de evolução. |
 
 ---
 
 ## CRÍTICO — Corrigir Imediatamente
 
-### 1. Credenciais Hardcoded
-**Arquivo:** `frontend/src/lib/customSupabaseClient.js`
-- Supabase URL e anon key estão como fallback no código
-- **Fix:** Remover fallbacks, usar apenas env vars, falhar com erro claro se não definidas
-
-### 2. Schema de Banco Inexistente
-- Nenhum SQL de criação de tabelas no repositório
-- Agentes Python inferem tabelas que podem não existir
-- **Fix:** Usar o `supabase-schema.sql` que criamos aqui
-
-### 3. Backend sem Entry Point
-- Não existe `main.py` do FastAPI
-- Apenas 3 arquivos de agentes soltos em `backend/src/agents/`
-- **Fix:** Criar app FastAPI completa com rotas
+### 1. ~~Credenciais~~ ✅  
+### 2. Schema — ⏳ Aplicar no Supabase (ver scripts/README).  
+### 3. Backend / API — ✅ Edge Functions (generate-embedding, run-matching, reject-match) + frontend ligado.
 
 ---
 
 ## ALTO — Melhorias Arquiteturais
 
-### 4. Migrar de Vite+React para Next.js 15
-O prompt pedia Next.js. Benefícios:
-- SSR/SSG para landing pages (SEO)
-- API Routes embutidas (elimina FastAPI separado)
-- Middleware para auth
-- App Router com layouts aninhados
-- Deploy direto na Vercel
-
-### 5. RLS (Row Level Security) no Supabase
-- Atualmente ZERO políticas RLS
-- Qualquer usuário com a anon key pode ler/escrever qualquer tabela
-- **Fix:** Aplicar as policies do `supabase-schema.sql`
-
-### 6. pgvector para Matching Semântico
-- ChromaDB está nas dependências mas é redundante com pgvector do Supabase
-- **Fix:** Usar pgvector nativo (já no schema), remover ChromaDB
-
-### 7. Embeddings Pipeline
-- Não existe pipeline de geração de embeddings
-- **Fix:** Criar Edge Function ou API route que:
-  1. Recebe CV/JD text
-  2. Chama OpenAI text-embedding-3-large
-  3. Salva vector na tabela candidates/jobs
+### 4. Next.js 15 — ❌ Adiado  
+### 5. RLS — ✅ No schema; ⏳ aplicar ao projecto  
+### 6. pgvector — ✅  
+### 7. Embeddings Pipeline — ✅  
 
 ---
 
 ## MÉDIO — Melhorias de Qualidade
 
-### 8. TypeScript
-- Projeto usa JSX sem tipagem
-- **Fix:** Migrar para TSX com tipos para Supabase (usar `supabase gen types typescript`)
-
-### 9. Testes
-- CI configurado mas zero testes existem
-- **Fix:** Pelo menos testes para:
-  - Matching algorithm
-  - Auth flow
-  - API routes
-  - RLS policies
-
-### 10. Error Boundaries
-- Sem error boundary global no React
-- **Fix:** Adicionar ErrorBoundary no App.jsx
-
-### 11. Paginação
-- Listagens carregam tudo de uma vez
-- **Fix:** Usar `range()` do Supabase client
-
-### 12. Rate Limiting
-- Sem rate limit nas APIs
-- **Fix:** Usar Supabase Edge Functions com rate limiting ou middleware FastAPI
+### 8. TypeScript — ✅  
+### 9. Testes — ✅ (AuthContext, useJobs, useShareLink, SharePage)  
+### 10. Error Boundaries — ✅  
+### 11. Paginação — ✅  
+### 12. Rate Limiting — ✅ (Edge Functions, por IP)
 
 ---
 
-## SUGESTÕES DE FEATURES ADICIONAIS
+## Sugestões de Features Adicionais (roadmap)
 
-### 13. Webhook de Feedback Loop
-Quando empresa rejeita candidato:
-1. Trigger no Supabase → Edge Function
-2. Edge Function pergunta motivo (via email/in-app)
-3. Feedback salvo → ajusta embeddings futuros
-
-### 14. Dashboard Analytics com Realtime
-- Usar Supabase Realtime para atualizar dashboards ao vivo
-- Novas matches aparecem sem refresh
-
-### 15. Multi-tenant Subdomínios
-- `{empresa}.talonhire.com` via Next.js middleware + Vercel wildcard domains
-- Cada empresa tem landing personalizada
-
-### 16. Integração WhatsApp via Supabase Edge Functions
-- Edge Function recebe webhook do WhatsApp Business API
-- Salva mensagens como notifications
-- Envia alerts de match automaticamente
+- **13.** Webhook de feedback quando a empresa rejeita (motivo já guardado em `rejection_reason`; usar para fine-tune/embeddings no futuro).
+- **14.** Dashboards com Supabase Realtime.
+- **15.** Multi-tenant por subdomínio.
+- **16.** Integração WhatsApp.
 
 ---
 
 ## Ordem de Execução Recomendada
 
-1. **Aplicar schema SQL no Supabase** ← pronto no `supabase-schema.sql`
-2. Configurar Storage Buckets
-3. Remover credenciais hardcoded
-4. Criar pipeline de embeddings (Edge Function)
-5. Implementar matching via pgvector
-6. Adicionar RLS policies
-7. Construir API routes do backend
-8. Migrar para Next.js (se possível)
-9. Adicionar testes
-10. Deploy na Vercel
+1. Aplicar schema + storage no Supabase.  
+2. Configurar `.env` no frontend; testar login/signup.  
+3. Configurar `OPENAI_API_KEY` e fazer deploy das 3 Edge Functions.  
+4. Testar fluxo: CV texto → Update AI profile → criar vaga → Run matching → share link → Rejeitar com motivo.
+
+---
+
+## Sugestões de melhorias (recomendações) — Estado
+
+| # | Sugestão | Estado |
+|---|----------|--------|
+| 1 | Ligar frontend às Edge Functions (embedding + run matching) | ✅ CandidateDashboard "Update AI profile"; CompanyDashboard "Run matching"; JobNewPage embedding + matching após criar. |
+| 2 | Botão Rejeitar na SharePage com modal e update status | ✅ Modal com motivo opcional; Edge Function `reject-match`; feedback "rejected". |
+| 3 | Seletor de idioma | ✅ `LanguageSwitcher` no topo direito (PT, EN, ES, FR, IT, DE). |
+| 4 | Redirect após login por role | ✅ LoginPage usa perfil retornado por `signIn` e redireciona por role. |
+| 5 | Rota `/company/jobs/new` | ✅ JobNewPage + JobForm; checkbox "Run AI matching after creating job". |
+| 6 | Mais testes (useShareLink, SharePage) | ✅ useShareLink.test.ts; SharePage.test.tsx (token válido, expirado). |
+| 7 | Rate limit nas Edge Functions | ✅ `_shared/rateLimit.ts` (30 req/min por IP) em generate-embedding, run-matching, reject-match. |
+| 8 | Acessibilidade (labels, focus, role alert) | ✅ Signup/Login ids, htmlFor, focus:ring, role="alert"; SharePage modal acessível. |
+| 9 | Loading e feedback consistentes | ✅ Mensagens inline em JobNewPage, CompanyDashboard, CandidateDashboard. |
+| 10 | README na raiz | ✅ [README.md](./README.md) com quick start, stack, scripts e layout. |

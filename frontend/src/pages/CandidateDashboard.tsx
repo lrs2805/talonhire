@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
 import { useMatches } from '../hooks/useMatches'
+import { generateEmbedding } from '../lib/edgeFunctions'
 import type { Candidate, Interview } from '../types/database'
 
 interface DashboardStats {
@@ -31,6 +32,24 @@ export default function CandidateDashboard() {
     candidateId: candidate?.id,
     status: ['pending', 'sent_to_company', 'viewed', 'interview_requested', 'accepted'],
   })
+
+  const [embeddingLoading, setEmbeddingLoading] = useState(false)
+  const [embeddingMessage, setEmbeddingMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const runEmbedding = useCallback(async () => {
+    if (!candidate?.id || !candidate?.cv_text) {
+      setEmbeddingMessage({ type: 'error', text: 'Add CV text first (e.g. paste or extract from PDF).' })
+      return
+    }
+    setEmbeddingLoading(true)
+    setEmbeddingMessage(null)
+    const result = await generateEmbedding('cv', candidate.id, candidate.cv_text)
+    setEmbeddingLoading(false)
+    if (result.success) {
+      setEmbeddingMessage({ type: 'success', text: 'AI profile updated. You will appear in more matches.' })
+    } else {
+      setEmbeddingMessage({ type: 'error', text: result.error || 'Failed to update.' })
+    }
+  }, [candidate?.id, candidate?.cv_text])
 
   // Fetch stats
   useEffect(() => {
@@ -102,9 +121,29 @@ export default function CandidateDashboard() {
         />
       </div>
 
-      {/* Profile Completion */}
+      {/* Profile Completion + Update AI */}
       {candidate && (
-        <ProfileCompletion candidate={candidate} />
+        <>
+          <ProfileCompletion candidate={candidate} />
+          {(candidate.cv_text || candidate.cv_url) && (
+            <div className="mt-4 bg-gray-800/50 border border-gray-700 rounded-xl p-4 flex items-center justify-between">
+              <p className="text-gray-300 text-sm">Update your AI profile so you appear in job matches.</p>
+              <button
+                type="button"
+                onClick={runEmbedding}
+                disabled={embeddingLoading || !candidate.cv_text}
+                className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 disabled:opacity-50 text-black font-medium rounded-lg text-sm"
+              >
+                {embeddingLoading ? 'Updating...' : 'Update AI profile'}
+              </button>
+            </div>
+          )}
+          {embeddingMessage && (
+            <div role="alert" className={`mt-2 px-4 py-2 rounded-lg text-sm ${embeddingMessage.type === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+              {embeddingMessage.text}
+            </div>
+          )}
+        </>
       )}
 
       {/* Recent Matches */}

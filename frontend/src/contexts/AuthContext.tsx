@@ -19,7 +19,7 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  signIn: (email: string, password: string) => Promise<void>
+  signIn: (email: string, password: string) => Promise<Profile | null>
   signUp: (email: string, password: string, role: UserRole, metadata?: Record<string, string>) => Promise<void>
   signOut: () => Promise<void>
   updateProfile: (updates: Partial<Profile>) => Promise<void>
@@ -68,10 +68,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [fetchProfile])
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const signIn = useCallback(async (email: string, password: string): Promise<Profile | null> => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
-  }, [])
+    const profile = data.session?.user ? await fetchProfile(data.session.user.id) : null
+    if (profile) {
+      setState(prev => ({ ...prev, user: data.session?.user ?? null, session: data.session, profile, loading: false }))
+    }
+    return profile
+  }, [fetchProfile])
 
   const signUp = useCallback(async (
     email: string,
@@ -98,10 +103,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           location_country: metadata.location_country || 'BR',
         })
       } else if (role === 'company') {
+        const rawSlug = (metadata.company_name || '')
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^a-z0-9-]/g, '')
+        const slug = rawSlug || `company-${data.user.id.slice(0, 8)}`
         await supabase.from('companies').insert({
           owner_id: data.user.id,
-          name: metadata.company_name || '',
-          slug: (metadata.company_name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+          name: metadata.company_name || 'My Company',
+          slug,
           email,
           country: metadata.country || 'PT',
         })

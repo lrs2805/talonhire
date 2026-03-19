@@ -1,0 +1,114 @@
+{
+  "landing": {
+    "hero": {
+      "title": "TalonHire",
+      "tagline": "AI-powered recruitment that captures the perfect talent with surgical precision.",
+      "subtitle": "Connect LATAM tech talent with European & US companies.",
+      "ctaCandidate": "I'm a Candidate",
+      "ctaCompany": "I'm Hiring"
+    },
+    "howItWorks": "How It Works",
+    "steps": {
+      "01": { "title": "Create Profile", "desc": "Upload your CV or paste your LinkedIn URL. Our AI extracts your skills, experience, and tech stack automatically." },
+      "02": { "title": "AI Matching", "desc": "Multi-LLM scoring engine (GPT-4o, Claude, Gemini) evaluates technical fit, cultural alignment, and seniority." },
+      "03": { "title": "Get Hired", "desc": "Receive match notifications, record video interviews, and get hired. 40-60% cost savings for companies." }
+    },
+    "stats": {
+      "savings": "Cost Savings",
+      "matchTime": "Avg. Match Time",
+      "languages": "Languages",
+      "aiModels": "AI Models"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "postJob": "Post Job",
+    "signOut": "Sign Out",
+    "getStarted": "Get Started"
+  },
+  "auth": {
+    "join": "Join TalonHire",
+    "createAccount": "Create your account",
+    "candidate": "Candidate",
+    "company": "Company",
+    "fullName": "Full Name",
+    "companyName": "Company Name",
+    "email": "Email",
+    "password": "Password",
+    "city": "City",
+    "country": "Country",
+    "consent": "I authorize TalonHire to store and process my personal data for recruitment purposes for up to 90 days, in compliance with LGPD and GDPR regulations. I can request deletion at any time.",
+    "signIn": "Sign In",
+    "welcomeBack": "Welcome Back",
+    "signInToAccount": "Sign in to your TalonHire account",
+    "signingIn": "Signing in...",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign Up",
+    "alreadyHaveAccount": "Already have an account?",
+    "createAccountButton": "Create Account",
+    "creating": "Creating account..."
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "profileActive": "Your profile is active and visible to companies.",
+    "completeProfile": "Complete your profile to start receiving matches.",
+    "activeMatches": "Active Matches",
+    "pendingInterviews": "Pending Interviews",
+    "recordedVideos": "Recorded Videos",
+    "profileCompletion": "Profile Completion",
+    "recentMatches": "Recent Matches",
+    "noMatches": "No matches yet. Complete your profile and upload your CV to start receiving AI-powered matches.",
+    "loadingMatches": "Loading matches...",
+    "updateAiProfile": "Update AI profile",
+    "updateAiHint": "Update your AI profile so you appear in job matches.",
+    "updating": "Updating...",
+    "aiUpdated": "AI profile updated. You will appear in more matches.",
+    "addCvFirst": "Add CV text first (e.g. paste or extract from PDF).",
+    "activeJobs": "Active Jobs",
+    "candidatesInPipeline": "Candidates in Pipeline",
+    "pendingMatchesLabel": "Pending Matches",
+    "closedContracts": "Closed Contracts",
+    "yourJobs": "Your Jobs",
+    "noJobs": "No jobs posted yet. Create your first job to start receiving AI-matched candidates.",
+    "runMatching": "Run matching",
+    "running": "Running...",
+    "postNewJob": "Post New Job",
+    "plan": "Plan",
+    "totalCompanies": "Total Companies",
+    "totalCandidates": "Total Candidates",
+    "totalMatches": "Total Matches",
+    "activeContracts": "Active Contracts",
+    "totalRevenue": "Total Revenue",
+    "conversionRate": "Conversion Rate",
+    "contractsFromMatches": "{{contracts}} contracts from {{matches}} matches",
+    "adminDashboard": "Admin Dashboard"
+  },
+  "job": {
+    "postNew": "Post New Job",
+    "createHint": "Create a job to receive AI-matched candidates.",
+    "published": "Job published. AI matching has been run.",
+    "runMatchingAfter": "Run AI matching after creating job",
+    "backToDashboard": "Dashboard"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "reload": "Reload Page",
+    "remote": "Remote"
+  },
+  "share": {
+    "title": "TalonHire Match",
+    "expired": "This link has expired.",
+    "invalid": "Invalid link.",
+    "candidateFor": "Candidate for",
+    "hire": "Hire",
+    "reject": "Reject",
+    "rejected": "This candidate has been marked as rejected. Thank you for your feedback.",
+    "rejectConfirm": "Reject this candidate?",
+    "rejectHint": "Optional: add a reason (used to improve future matches).",
+    "rejectPlaceholder": "e.g. Seniority mismatch, different stack...",
+    "rejecting": "Rejecting...",
+    "cancel": "Cancel",
+    "videoHint": "Video and transcript can be shown here when available. For now, use the company dashboard to view full match details."
+  }
+}

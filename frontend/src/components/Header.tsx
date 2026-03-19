@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { useState } from 'react'
 
 export default function Header() {
+  const { t } = useTranslation()
   const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -10,8 +12,6 @@ export default function Header() {
   const isCandidate = profile?.role === 'candidate'
   const isCompany = profile?.role === 'company'
   const isAdmin = profile?.role === 'admin_master' || profile?.role === 'admin_recruiter'
-
-  const accentColor = isCompany ? 'green' : 'cyan'
 
   async function handleSignOut() {
     await signOut()
@@ -23,7 +23,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className={`text-xl font-bold font-['Orbitron'] text-${accentColor}-400 drop-shadow-[0_0_10px_rgba(0,217,255,0.3)]`}>
+          <span className={`text-xl font-bold font-['Orbitron'] ${isCompany ? 'text-green-400' : 'text-cyan-400'} drop-shadow-[0_0_10px_rgba(0,217,255,0.3)]`}>
             TalonHire
           </span>
         </Link>
@@ -33,24 +33,16 @@ export default function Header() {
           {user ? (
             <>
               {isCandidate && (
-                <>
-                  <NavLink to="/candidate/dashboard">Dashboard</NavLink>
-                  <NavLink to="/candidate/matches">Matches</NavLink>
-                  <NavLink to="/candidate/interviews">Interviews</NavLink>
-                </>
+                <NavLink to="/candidate/dashboard">{t('nav.dashboard')}</NavLink>
               )}
               {isCompany && (
                 <>
-                  <NavLink to="/company/dashboard">Dashboard</NavLink>
-                  <NavLink to="/company/jobs/new">Post Job</NavLink>
+                  <NavLink to="/company/dashboard">{t('nav.dashboard')}</NavLink>
+                  <NavLink to="/company/jobs/new">{t('nav.postJob')}</NavLink>
                 </>
               )}
               {isAdmin && (
-                <>
-                  <NavLink to="/admin/dashboard">Dashboard</NavLink>
-                  <NavLink to="/admin/companies">Companies</NavLink>
-                  <NavLink to="/admin/candidates">Candidates</NavLink>
-                </>
+                <NavLink to="/admin/dashboard">{t('nav.dashboard')}</NavLink>
               )}
 
               <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-700">
@@ -59,18 +51,18 @@ export default function Header() {
                   onClick={handleSignOut}
                   className="text-sm text-gray-500 hover:text-white transition-colors"
                 >
-                  Sign Out
+                  {t('nav.signOut')}
                 </button>
               </div>
             </>
           ) : (
             <>
-              <NavLink to="/auth/login">Sign In</NavLink>
+              <NavLink to="/auth/login">{t('auth.signIn')}</NavLink>
               <Link
                 to="/auth/signup"
                 className="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-black font-medium rounded-lg text-sm transition-colors"
               >
-                Get Started
+                {t('nav.getStarted')}
               </Link>
             </>
           )}
@@ -80,6 +72,7 @@ export default function Header() {
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="md:hidden text-gray-400 hover:text-white"
+          aria-label="Toggle menu"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {menuOpen ? (
@@ -98,35 +91,28 @@ export default function Header() {
             {user ? (
               <>
                 {isCandidate && (
-                  <>
-                    <MobileLink to="/candidate/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</MobileLink>
-                    <MobileLink to="/candidate/matches" onClick={() => setMenuOpen(false)}>Matches</MobileLink>
-                    <MobileLink to="/candidate/interviews" onClick={() => setMenuOpen(false)}>Interviews</MobileLink>
-                  </>
+                  <MobileLink to="/candidate/dashboard" onClick={() => setMenuOpen(false)}>{t('nav.dashboard')}</MobileLink>
                 )}
                 {isCompany && (
                   <>
-                    <MobileLink to="/company/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</MobileLink>
-                    <MobileLink to="/company/jobs/new" onClick={() => setMenuOpen(false)}>Post Job</MobileLink>
+                    <MobileLink to="/company/dashboard" onClick={() => setMenuOpen(false)}>{t('nav.dashboard')}</MobileLink>
+                    <MobileLink to="/company/jobs/new" onClick={() => setMenuOpen(false)}>{t('nav.postJob')}</MobileLink>
                   </>
                 )}
                 {isAdmin && (
-                  <>
-                    <MobileLink to="/admin/dashboard" onClick={() => setMenuOpen(false)}>Dashboard</MobileLink>
-                    <MobileLink to="/admin/companies" onClick={() => setMenuOpen(false)}>Companies</MobileLink>
-                  </>
+                  <MobileLink to="/admin/dashboard" onClick={() => setMenuOpen(false)}>{t('nav.dashboard')}</MobileLink>
                 )}
                 <button
                   onClick={() => { handleSignOut(); setMenuOpen(false) }}
                   className="w-full text-left text-gray-500 hover:text-white py-2 text-sm"
                 >
-                  Sign Out ({profile?.full_name})
+                  {t('nav.signOut')} ({profile?.full_name})
                 </button>
               </>
             ) : (
               <>
-                <MobileLink to="/auth/login" onClick={() => setMenuOpen(false)}>Sign In</MobileLink>
-                <MobileLink to="/auth/signup" onClick={() => setMenuOpen(false)}>Get Started</MobileLink>
+                <MobileLink to="/auth/login" onClick={() => setMenuOpen(false)}>{t('auth.signIn')}</MobileLink>
+                <MobileLink to="/auth/signup" onClick={() => setMenuOpen(false)}>{t('nav.getStarted')}</MobileLink>
               </>
             )}
           </div>

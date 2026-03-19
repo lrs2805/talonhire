@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import type { Job, SeniorityLevel, ContractType } from '../types/database'
 
-type JobFormData = Pick<Job,
+export type JobFormData = Pick<Job,
   'title' | 'description' | 'seniority' | 'required_stack' | 'nice_to_have_stack' |
   'salary_min' | 'salary_max' | 'remote' | 'location_city' | 'location_country' |
   'relocation_support' | 'contract_type' | 'assessment_type'

@@ -1,11 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import type { UserRole } from '../types/database'
 
 type SignupRole = 'candidate' | 'company'
 
 export default function SignupPage() {
+  const { t } = useTranslation()
   const { signUp } = useAuth()
   const navigate = useNavigate()
   const [role, setRole] = useState<SignupRole>('candidate')
@@ -55,11 +57,10 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <div className="bg-gray-800/50 border border-gray-700 rounded-2xl p-8 backdrop-blur-sm">
           <h1 className="text-2xl font-bold text-white font-['Orbitron'] text-center mb-2">
-            Join TalonHire
+            {t('auth.join')}
           </h1>
-          <p className="text-gray-400 text-center mb-6">Create your account</p>
+          <p className="text-gray-400 text-center mb-6">{t('auth.createAccount')}</p>
 
-          {/* Role Selector */}
           <div className="flex gap-3 mb-6">
             <button
               type="button"
@@ -70,7 +71,7 @@ export default function SignupPage() {
                   : 'bg-gray-900/50 text-gray-500 border border-gray-700 hover:border-gray-600'
               }`}
             >
-              Candidate
+              {t('auth.candidate')}
             </button>
             <button
               type="button"
@@ -81,12 +82,12 @@ export default function SignupPage() {
                   : 'bg-gray-900/50 text-gray-500 border border-gray-700 hover:border-gray-600'
               }`}
             >
-              Company
+              {t('auth.company')}
             </button>
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
+            <div role="alert" className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-6 text-sm">
               {error}
             </div>
           )}
@@ -95,15 +96,16 @@ export default function SignupPage() {
             {/* Role-specific fields */}
             {role === 'candidate' ? (
               <>
-                <Field label="Full Name" value={fullName} onChange={setFullName} placeholder="João Silva" required />
+                <Field id="signup-fullName" label={t('auth.fullName')} value={fullName} onChange={setFullName} placeholder="João Silva" required />
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="City" value={locationCity} onChange={setLocationCity} placeholder="São Paulo" />
+                  <Field id="signup-city" label={t('auth.city')} value={locationCity} onChange={setLocationCity} placeholder="São Paulo" />
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1.5">Country</label>
+                    <label htmlFor="signup-country" className="block text-sm text-gray-400 mb-1.5">{t('auth.country')}</label>
                     <select
+                      id="signup-country"
                       value={locationCountry}
                       onChange={e => setLocationCountry(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-cyan-500"
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30"
                     >
                       <option value="BR">Brazil</option>
                       <option value="AR">Argentina</option>
@@ -117,13 +119,14 @@ export default function SignupPage() {
               </>
             ) : (
               <>
-                <Field label="Company Name" value={companyName} onChange={setCompanyName} placeholder="Acme Tech" required />
+                <Field id="signup-companyName" label={t('auth.companyName')} value={companyName} onChange={setCompanyName} placeholder="Acme Tech" required />
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1.5">Country</label>
+                  <label htmlFor="signup-company-country" className="block text-sm text-gray-400 mb-1.5">{t('auth.country')}</label>
                   <select
+                    id="signup-company-country"
                     value={country}
                     onChange={e => setCountry(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500"
+                    className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/30"
                   >
                     <option value="PT">Portugal</option>
                     <option value="DE">Germany</option>
@@ -138,11 +141,9 @@ export default function SignupPage() {
               </>
             )}
 
-            {/* Common fields */}
-            <Field label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" required />
-            <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="Min. 6 characters" required minLength={6} />
+            <Field id="signup-email" label={t('auth.email')} type="email" value={email} onChange={setEmail} placeholder="you@example.com" required />
+            <Field id="signup-password" label={t('auth.password')} type="password" value={password} onChange={setPassword} placeholder="Min. 6 characters" required minLength={6} />
 
-            {/* LGPD/GDPR Consent */}
             <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -150,9 +151,7 @@ export default function SignupPage() {
                 onChange={e => setConsent(e.target.checked)}
                 className="mt-1 w-4 h-4 accent-cyan-500"
               />
-              <span className="text-xs text-gray-400 leading-relaxed">
-                I authorize TalonHire to store and process my personal data for recruitment purposes for up to 90 days, in compliance with LGPD and GDPR regulations. I can request deletion at any time.
-              </span>
+              <span className="text-xs text-gray-400 leading-relaxed">{t('auth.consent')}</span>
             </label>
 
             <button
@@ -164,14 +163,14 @@ export default function SignupPage() {
                   : 'bg-green-500 hover:bg-green-600 text-black'
               }`}
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? t('auth.creating') : t('auth.createAccountButton')}
             </button>
           </form>
 
           <p className="text-gray-500 text-sm text-center mt-6">
-            Already have an account?{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link to="/auth/login" className="text-cyan-400 hover:text-cyan-300">
-              Sign In
+              {t('auth.signIn')}
             </Link>
           </p>
         </div>
@@ -181,21 +180,23 @@ export default function SignupPage() {
 }
 
 function Field({
-  label, type = 'text', value, onChange, placeholder, required, minLength,
+  id, label, type = 'text', value, onChange, placeholder, required, minLength,
 }: {
-  label: string; type?: string; value: string; onChange: (v: string) => void; placeholder?: string; required?: boolean; minLength?: number
+  id: string; label: string; type?: string; value: string; onChange: (v: string) => void; placeholder?: string; required?: boolean; minLength?: number
 }) {
   return (
     <div>
-      <label className="block text-sm text-gray-400 mb-1.5">{label}</label>
+      <label htmlFor={id} className="block text-sm text-gray-400 mb-1.5">{label}</label>
       <input
+        id={id}
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         required={required}
         minLength={minLength}
-        className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 transition-colors"
+        className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 transition-colors"
         placeholder={placeholder}
+        aria-required={required}
       />
     </div>
   )
