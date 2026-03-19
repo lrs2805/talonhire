@@ -1,125 +1,96 @@
-# 🎯 TalonHire
+# TalonHire — AI-Powered Recruitment Platform
 
-**AI-powered recruitment platform connecting Brazilian developers with European companies**
+> Connect LATAM tech talent with European & US companies. Perfect matches in hours, not weeks.
 
-## 🚀 Vision
-Revolutionize tech recruitment with AI mass matching, creating perfect connections between Brazilian talent and European opportunities.
+## Stack
 
-## ✨ Key Features
-- **AI Mass Matching**: 95%+ accuracy matching algorithm
-- **Cross-border Compliance**: Automated visa & legal processing
-- **Cultural Fit Analysis**: AI-powered cultural compatibility scoring
-- **End-to-End Automation**: From discovery to onboarding
-- **Real-time Market Intelligence**: Salary trends, skill demand analytics
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | Vite + React 18 + TypeScript + Tailwind CSS + Framer Motion |
+| **Backend** | Supabase Edge Functions (Deno) |
+| **Database** | Supabase PostgreSQL + pgvector (embeddings) |
+| **Auth** | Supabase Auth (email/password, role-based) |
+| **Storage** | Supabase Storage (CVs, videos, JDs, avatars) |
+| **Embeddings** | OpenAI text-embedding-3-large (3072 dims) |
+| **Matching** | pgvector cosine similarity + SQL functions |
+| **i18n** | react-i18next (PT, EN, ES, FR, IT, DE) |
+| **Design** | Dark tech futuristic — Orbitron/Rajdhani, neon cyan/green |
 
-## 🏗️ Architecture
-- **Frontend**: Vite + React + TypeScript + Tailwind CSS (existing codebase)
-- **Backend**: FastAPI (Python) + PostgreSQL + Redis (to be developed)
-- **AI/ML**: TensorFlow/PyTorch + OpenAI/Cohere embeddings (to be developed)
-- **Infrastructure**: Vercel (frontend), Railway (backend), Pinecone (vector DB)
-- **Monitoring**: Sentry, Datadog, PostHog
+## Quick Start
 
-## 📁 Project Structure
+```bash
+# Frontend
+cd frontend
+cp .env.example .env    # set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
+npm install
+npm run dev             # http://localhost:3000
+```
+
+## Supabase Setup
+
+1. **Schema**: Execute `supabase/schema.sql` no SQL Editor do Supabase Dashboard
+2. **Storage**: Execute `supabase/storage-buckets.sql` no SQL Editor
+3. **Edge Functions**: Deploy com:
+   ```bash
+   supabase functions deploy generate-embedding --project-ref zluwxdsjtvqhguxdhsxm
+   supabase functions deploy run-matching --project-ref zluwxdsjtvqhguxdhsxm
+   supabase functions deploy reject-match --project-ref zluwxdsjtvqhguxdhsxm --no-verify-jwt
+   ```
+4. **Secrets**: Configure no Dashboard > Edge Functions > Secrets:
+   - `OPENAI_API_KEY` — Required for embeddings
+
+## Project Structure
+
 ```
 talonhire/
-├── frontend/                 # Vite + React application (existing codebase)
-├── backend/                  # FastAPI + PostgreSQL (to be developed)
-├── ai/                       # ML models & embeddings (to be developed)
-├── ops/                      # Infrastructure & deployment
-├── docs/                     # Documentation
-└── .github/                  # CI/CD workflows
+├── frontend/src/
+│   ├── components/     # 9 TSX components (Header, MatchCard, JobForm, etc.)
+│   ├── contexts/       # AuthContext (role-based: candidate/company/admin)
+│   ├── hooks/          # useMatches, useJobs, useCandidate, useNotifications, useShareLink
+│   ├── i18n/           # 6 locales (PT, EN, ES, FR, IT, DE)
+│   ├── lib/            # Supabase client + Edge Function wrappers
+│   ├── pages/          # 7 pages (Landing, Login, Signup, 3 Dashboards, Share, JobNew)
+│   ├── types/          # Auto-generated Supabase types + aliases
+│   └── App.tsx         # Router with role-based protected routes
+├── supabase/
+│   ├── schema.sql              # 13 tables, 11 enums, pgvector, RLS, triggers
+│   ├── storage-buckets.sql     # 5 buckets with RLS policies
+│   └── functions/
+│       ├── _shared/            # Rate limiting + CORS helpers
+│       ├── generate-embedding/ # OpenAI → pgvector (cv or jd)
+│       ├── run-matching/       # pgvector cosine → matchings table
+│       └── reject-match/       # Update match via share token
+└── MELHORIAS.md                # Roadmap and implementation status
 ```
 
-## 🎯 Target Market
-- **Supply**: 500,000+ Brazilian developers
-- **Demand**: European tech companies (Portugal → EU expansion)
-- **Revenue Model**: 15% placement fee + 40% markup on services
-- **Projection**: €1.6M Year 1, €4.15M Year 2, €8.6M Year 3
+## Database (13 tables)
 
-## 🚀 Getting Started
+`profiles` → `companies` / `candidates` (pgvector) → `jobs` (pgvector) → `matchings` (multi-score) → `interviews` → `assessments` → `contracts` → `payments` → `notifications` → `translations` → `activity_log` → `user_preferences`
 
-### Prerequisites
-- Node.js 18+
-- Python 3.11+ (for future backend)
-- PostgreSQL 15+ (for future backend)
-- OpenAI API key
+## Key Features
 
-### Quick Start
+- **AI Matching**: CV embeddings vs JD embeddings (cosine similarity via pgvector)
+- **48h Share Links**: Expirable links for companies to review candidates
+- **Rejection Feedback**: Companies provide reasons → future matching improvement
+- **Role-Based Access**: Candidate, Company, Admin (master/recruiter)
+- **LGPD/GDPR**: Consent checkbox + 90-day auto-deletion trigger
+- **Neon UI**: Dark tech aesthetic with particle effects and glow animations
+
+## Scripts
+
 ```bash
-# Clone repository
-git clone https://github.com/lrs2805/talonhire.git
-cd talonhire/frontend
-
-# Install dependencies
-npm install
-
-# Environment setup
-cp .env.example .env.local
-# Configure your environment variables
-
-# Run development server
-npm run dev
+npm run dev          # Dev server
+npm run build        # TypeScript check + Vite build
+npm run test         # Vitest watch mode
+npm run test:run     # Vitest single run
+npm run typecheck    # tsc --noEmit
+npm run supabase:types  # Regenerate database types
 ```
 
-## 🔧 Tech Stack
+## Roadmap
 
-### Frontend (Existing)
-- **Framework**: Vite + React
-- **Language**: JavaScript/TypeScript
-- **Styling**: Tailwind CSS + Shadcn/ui
-- **UI Components**: Radix UI
-- **State Management**: React Context
-- **Internationalization**: i18n
+See [MELHORIAS.md](./MELHORIAS.md) for full implementation status and next steps.
 
-### Backend (To be developed)
-- **API**: FastAPI (Python)
-- **Database**: PostgreSQL + SQLAlchemy
-- **Cache**: Redis
-- **Search**: Elasticsearch
-- **Queue**: Celery + RabbitMQ
+## License
 
-### AI/ML (To be developed)
-- **Frameworks**: TensorFlow, PyTorch
-- **NLP**: spaCy, Transformers
-- **Embeddings**: OpenAI, Cohere
-- **Vector DB**: Pinecone, Weaviate
-
-### Infrastructure
-- **Hosting**: Vercel (frontend), Railway (backend)
-- **CI/CD**: GitHub Actions
-- **Monitoring**: Sentry, Datadog
-- **Analytics**: PostHog, Mixpanel
-
-## 📊 Environment Variables
-```env
-# Frontend (Vite)
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_APP_URL=http://localhost:5173
-
-# Backend (Future)
-DATABASE_URL=postgresql://user:pass@localhost/talonhire
-REDIS_URL=redis://localhost:6379
-OPENAI_API_KEY=your_openai_key
-```
-
-## 🤝 Contributing
-We use a team of specialized AI agents for development:
-- **TAKUMI ARATA**: Tech Lead & Frontend Development
-- **ARI KATSUO**: System Architecture  
-- **BUNGŌ SAKKA**: AI Engineering
-- **LEX KAITO**: Legal & Compliance Integration
-- **SAM MAVERICK**: Growth & Marketing Features
-- **KODO TAKARA**: Process Optimization
-
-## 📄 License
-Proprietary - All rights reserved.
-
-## 📞 Contact
-- **Website**: [talonhire.com](https://talonhire.com) (coming soon)
-- **Email**: contact@talonhire.com
-- **LinkedIn**: [TalonHire](https://linkedin.com/company/talonhire)
-
----
-
-**Building the future of global tech recruitment with AI** ⚡
+Private — All rights reserved.
