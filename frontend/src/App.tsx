@@ -16,8 +16,6 @@ const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const SharePage = lazy(() => import('./pages/SharePage'))
 const JobNewPage = lazy(() => import('./pages/JobNewPage'))
-const CandidateInterviewPage = lazy(() => import('./pages/CandidateInterviewPage'))
-
 function AppRoutes() {
   const { profile } = useAuth()
 
@@ -47,12 +45,6 @@ function AppRoutes() {
           <CandidateDashboard />
         </ProtectedRoute>
       } />
-      <Route path="/candidate/interview/:matchId" element={
-        <ProtectedRoute allowedRoles={['candidate']}>
-          <CandidateInterviewPage />
-        </ProtectedRoute>
-      } />
-
       {/* Company */}
       <Route path="/company/dashboard" element={
         <ProtectedRoute allowedRoles={['company']}>
