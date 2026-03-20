@@ -16,6 +16,7 @@ const CompanyDashboard = lazy(() => import('./pages/CompanyDashboard'))
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'))
 const SharePage = lazy(() => import('./pages/SharePage'))
 const JobNewPage = lazy(() => import('./pages/JobNewPage'))
+const ContractPage = lazy(() => import('./pages/ContractPage'))
 function AppRoutes() {
   const { profile } = useAuth()
 
@@ -54,6 +55,13 @@ function AppRoutes() {
       <Route path="/company/jobs/new" element={
         <ProtectedRoute allowedRoles={['company']}>
           <JobNewPage />
+        </ProtectedRoute>
+      } />
+
+      {/* Contract */}
+      <Route path="/contract/:contractId" element={
+        <ProtectedRoute allowedRoles={['candidate', 'company', 'admin_master', 'admin_recruiter']}>
+          <ContractPage />
         </ProtectedRoute>
       } />
 
