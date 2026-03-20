@@ -44,29 +44,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data as Profile | null
   }, [])
 
+  /**
+   * GoTrue pode aguardar callbacks de `onAuthStateChange` antes de resolver `signUp`/`signInWithPassword`.
+   * `async` + `await fetchProfile` dentro do listener bloqueava a Promise de signup (POST 200 mas UI presa em "Creating account...") — PHI-79 / P0-06.
+   * Carregar o perfil fora do callback síncrono (microtask) evita bloquear a cadeia interna de auth.
+   */
+  const applySessionFromAuth = useCallback(
+    (session: Session | null) => {
+      if (!session?.user) {
+        setState({ user: null, session: null, profile: null, loading: false })
+        return
+      }
+      const uid = session.user.id
+      setState(prev => ({
+        ...prev,
+        user: session.user,
+        session,
+        loading: true,
+      }))
+      queueMicrotask(() => {
+        fetchProfile(uid)
+          .then(profile => {
+            setState(prev => ({
+              ...prev,
+              profile,
+              loading: false,
+            }))
+          })
+          .catch(() => {
+            setState(prev => ({
+              ...prev,
+              profile: null,
+              loading: false,
+            }))
+          })
+      })
+    },
+    [fetchProfile]
+  )
+
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const profile = session?.user ? await fetchProfile(session.user.id) : null
-      setState({ user: session?.user ?? null, session, profile, loading: false })
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      applySessionFromAuth(session)
     })
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        const profile = session?.user ? await fetchProfile(session.user.id) : null
-        setState(prev => ({
-          ...prev,
-          user: session?.user ?? null,
-          session,
-          profile,
-          loading: false,
-        }))
-      }
-    )
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      applySessionFromAuth(session)
+    })
 
     return () => subscription.unsubscribe()
-  }, [fetchProfile])
+  }, [applySessionFromAuth])
 
   const signIn = useCallback(async (email: string, password: string): Promise<Profile | null> => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
@@ -84,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     role: UserRole,
     metadata: Record<string, string> = {}
   ) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -92,32 +119,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     })
     if (error) throw error
-
-    // The handle_new_user() trigger auto-creates the profile.
-    // Now create the role-specific record.
-    if (data.user) {
-      if (role === 'candidate') {
-        await supabase.from('candidates').insert({
-          profile_id: data.user.id,
-          location_city: metadata.location_city,
-          location_country: metadata.location_country || 'BR',
-        })
-      } else if (role === 'company') {
-        const rawSlug = (metadata.company_name || '')
-          .toLowerCase()
-          .trim()
-          .replace(/\s+/g, '-')
-          .replace(/[^a-z0-9-]/g, '')
-        const slug = rawSlug || `company-${data.user.id.slice(0, 8)}`
-        await supabase.from('companies').insert({
-          owner_id: data.user.id,
-          name: metadata.company_name || 'My Company',
-          slug,
-          email,
-          country: metadata.country || 'PT',
-        })
-      }
-    }
+    // Profile + candidates/companies rows are created in handle_new_user() (SECURITY DEFINER).
+    // Do not insert companies/candidates from the browser: RLS requires auth.uid() and caused PHI-79
+    // (UI stuck on "Creating account..." after signup 200).
   }, [])
 
   const signOut = useCallback(async () => {
