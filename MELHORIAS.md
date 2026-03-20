@@ -16,6 +16,7 @@
 | **Slug empresa no signup** | Fallback `company-{userId.slice(0,8)}` quando o nome não gera slug válido. |
 | **Landing Tailwind** | Classes fixas (cyan/green/purple) nos steps "How it works" para o build. |
 | **Pipeline de embeddings** | Edge Function `generate-embedding` (OpenAI → candidates/jobs). Frontend: botão "Update AI profile" no CandidateDashboard; JobNewPage chama após criar vaga. |
+| **Assinatura de contratos (DIY)** | Edge Function `contract-sign` + tabela `contract_signatures`. Click-to-sign com SHA-256 hash do contrato, IP, timestamp, user agent. Trigger `check_contract_fully_signed` marca contrato como assinado quando ambas as partes assinam. Componente `ContractSign.tsx` + página `/contract/:contractId`. eIDAS/LGPD compliant. |
 | **Matching pgvector** | Edge Function `run-matching`. Frontend: botão "Run matching" por vaga no CompanyDashboard; JobNewPage opção "Run AI matching after creating job". |
 | **Share 48h** | Rota `/share/:token`, validação, CTAs Contratar / Rejeitar. Botão Rejeitar abre modal (motivo opcional) e chama Edge Function **reject-match** (atualiza `status: 'rejected'`, `rejection_reason`). |
 | **Rate limiting** | Todas as Edge Functions (`generate-embedding`, `run-matching`, `reject-match`) com rate limit por IP (30 req/min, `_shared/rateLimit.ts`). |
@@ -44,7 +45,8 @@
 | Item | Nota |
 |------|------|
 | **Migração para Next.js 15** | Mantido Vite + Edge Functions. |
-| **Scraping LinkedIn, Stripe, DocuSign, Resend, WhatsApp** | Integrações previstas no prompt; trabalho futuro. |
+| **Scraping LinkedIn, Stripe, Resend, WhatsApp** | Integrações previstas no prompt; trabalho futuro. |
+| **Contratos eletrónicos** | ✅ DIY click-to-sign implementado (SHA-256 + IP + timestamp). PandaDoc descartado (API requer plano Enterprise $65+/mês). eIDAS/LGPD compliant. |
 | **Webhook feedback loop, Realtime nos dashboards, multi-tenant** | Sugestões de evolução. |
 
 ---

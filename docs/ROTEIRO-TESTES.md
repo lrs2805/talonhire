@@ -243,6 +243,90 @@ LIMIT 1;
 - [ ] Já testado na Parte 5.3
 - [ ] Verificar no Supabase: `matchings.status = 'rejected'` e `rejection_reason` preenchido
 
+### 6.4 contract-sign
+- [ ] Testado na Parte 5.5 (abaixo)
+- [ ] Verificar `contract_signatures` no Supabase
+
+---
+
+## PARTE 5.5 — Assinatura de Contratos (DIY Click-to-Sign)
+
+### 5.5.1 Criar Contrato (via SQL)
+
+```sql
+-- Criar contrato de teste (substitui UUIDs reais de job, candidate, company)
+INSERT INTO contracts (job_id, candidate_id, company_id, contract_type, fee_percentage, fee_base_salary, fee_total_amount, start_date)
+VALUES (
+  'UUID_DA_VAGA',
+  'UUID_DO_CANDIDATO',
+  'UUID_DA_EMPRESA',
+  'fee_15pct',
+  15.00,
+  48000,
+  7200,
+  '2026-04-01'
+);
+
+-- Copiar o id gerado
+SELECT id FROM contracts ORDER BY created_at DESC LIMIT 1;
+```
+
+### 5.5.2 Testar Página do Contrato
+- [ ] Abrir `https://talonhire.vercel.app/contract/UUID_DO_CONTRATO`
+- [ ] Verificar título "Recruitment Fee Agreement"
+- [ ] Verificar resumo: Position, Company, Candidate, Fee %, Total Amount, Payment, Guarantee
+- [ ] Verificar que o checkbox "I have read and agree..." está desmarcado
+- [ ] Verificar que o botão "Sign Contract" está desabilitado
+
+### 5.5.3 Assinar como Empresa
+- [ ] Login como empresa
+- [ ] Abrir `/contract/UUID_DO_CONTRATO`
+- [ ] Marcar checkbox de consentimento
+- [ ] Clicar "Sign Contract"
+- [ ] Verificar mensagem: "Signed as company. Waiting for the other party."
+- [ ] Verificar no Supabase: `contract_signatures` tem 1 registro com `signer_role = 'company'`
+
+### 5.5.4 Assinar como Candidato
+- [ ] Login como candidato
+- [ ] Abrir `/contract/UUID_DO_CONTRATO`
+- [ ] Marcar checkbox e clicar "Sign Contract"
+- [ ] Verificar mensagem: "Contract fully signed by both parties!"
+- [ ] Verificar que o card muda para "Contract Fully Signed" (com ✅ verde)
+
+### 5.5.5 Verificar no Supabase
+- [ ] `contract_signatures` tem 2 registros (company + candidate)
+- [ ] Cada registro tem: `ip_address`, `user_agent`, `pdf_hash` (SHA-256), `consent_text`
+- [ ] `contracts.both_signed = true`
+- [ ] `contracts.status = 'signed'`
+- [ ] `contracts.signed_at` preenchido
+
+### 5.5.6 Tentar Assinar Duas Vezes
+- [ ] Login como empresa novamente
+- [ ] Abrir `/contract/UUID_DO_CONTRATO`
+- [ ] Tentar assinar de novo
+- [ ] Verificar erro: "You have already signed this contract"
+
+### 5.5.7 Testar Contrato Tipo Serviço (markup 40%)
+
+```sql
+INSERT INTO contracts (job_id, candidate_id, company_id, contract_type, monthly_salary, monthly_markup_pct, monthly_total, relocation_fee, start_date)
+VALUES (
+  'UUID_DA_VAGA',
+  'UUID_DO_CANDIDATO',
+  'UUID_DA_EMPRESA',
+  'service_markup_40pct',
+  3500,
+  40.00,
+  4900,
+  1000,
+  '2026-04-01'
+);
+```
+
+- [ ] Abrir `/contract/UUID_NOVO`
+- [ ] Verificar título "Service Agreement"
+- [ ] Verificar: Monthly Salary, Markup 40%, Monthly Total, Relocation Fee
+
 ---
 
 ## PARTE 7 — Responsividade & UX
@@ -307,6 +391,9 @@ LIMIT 1;
 | Share link 48h | ☐ |
 | Rejeição com motivo | ☐ |
 | Link expirado | ☐ |
+| Contrato DIY (empresa assina) | ☐ |
+| Contrato DIY (candidato assina) | ☐ |
+| Contrato fully signed | ☐ |
 | Responsividade mobile | ☐ |
 | Proteção de rotas | ☐ |
 | Erros e edge cases | ☐ |
