@@ -13,14 +13,34 @@ export default function JobNewPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [company, setCompany] = useState<Company | null>(null)
+  const [companyLoading, setCompanyLoading] = useState(true)
+  const [companyLoadError, setCompanyLoadError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [runMatchingAfterCreate, setRunMatchingAfterCreate] = useState(true)
 
   useEffect(() => {
-    if (!user) return
-    supabase.from('companies').select('*').eq('owner_id', user.id).single().then(({ data }) => setCompany(data))
+    if (!user) {
+      setCompanyLoading(false)
+      return
+    }
+    setCompanyLoading(true)
+    setCompanyLoadError(null)
+    void supabase
+      .from('companies')
+      .select('*')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+      .then(({ data, error: qErr }) => {
+        setCompanyLoading(false)
+        if (qErr) {
+          setCompanyLoadError(qErr.message)
+          setCompany(null)
+          return
+        }
+        setCompany(data ?? null)
+      })
   }, [user])
 
   async function handleSubmit(form: JobFormData) {
@@ -63,10 +83,37 @@ export default function JobNewPage() {
     }
   }
 
+  if (companyLoading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4">
+        <p className="font-body text-gray-400">Loading...</p>
+      </div>
+    )
+  }
+
+  if (companyLoadError) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center px-4 text-center">
+        <p className="font-heading text-white mb-2">Could not load company</p>
+        <p className="font-body text-red-400 text-sm max-w-md mb-4">{companyLoadError}</p>
+        <p className="font-body text-gray-500 text-xs max-w-md mb-6">
+          This often indicates a Supabase RLS configuration issue (e.g. infinite recursion on <code className="text-gray-400">profiles</code> policies). Apply the SQL patch{' '}
+          <code className="text-gray-400">setup-rls-fix-profiles-recursion.sql</code> in the project docs.
+        </p>
+        <Link to="/company/dashboard" className="font-body text-[#39FF14] hover:underline">
+          ← Back to dashboard
+        </Link>
+      </div>
+    )
+  }
+
   if (!company) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
-        <p className="font-body text-gray-400">Loading...</p>
+      <div className="min-h-screen bg-[#0A0A0A] flex flex-col items-center justify-center px-4 text-center">
+        <p className="font-body text-gray-400 mb-4">No company record found for this account.</p>
+        <Link to="/company/dashboard" className="font-body text-[#39FF14] hover:underline">
+          ← Back to dashboard
+        </Link>
       </div>
     )
   }

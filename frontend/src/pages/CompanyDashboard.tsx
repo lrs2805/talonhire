@@ -18,13 +18,33 @@ interface CompanyStats {
 export default function CompanyDashboard() {
   const { user } = useAuth()
   const [company, setCompany] = useState<Company | null>(null)
+  const [companyLoading, setCompanyLoading] = useState(true)
+  const [companyLoadError, setCompanyLoadError] = useState<string | null>(null)
   const [stats, setStats] = useState<CompanyStats>({ activeJobs: 0, totalCandidates: 0, closedContracts: 0, pendingMatches: 0 })
   const [recentJobs, setRecentJobs] = useState<Job[]>([])
   const [contractsToSign, setContractsToSign] = useState<Contract[]>([])
 
   useEffect(() => {
-    if (!user) return
-    supabase.from('companies').select('*').eq('owner_id', user.id).single().then(({ data }) => { if (data) setCompany(data) })
+    if (!user) {
+      setCompanyLoading(false)
+      return
+    }
+    setCompanyLoading(true)
+    setCompanyLoadError(null)
+    void supabase
+      .from('companies')
+      .select('*')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        setCompanyLoading(false)
+        if (error) {
+          setCompanyLoadError(error.message)
+          setCompany(null)
+          return
+        }
+        setCompany(data ?? null)
+      })
   }, [user])
 
   const load = useCallback(async () => {
@@ -69,20 +89,47 @@ export default function CompanyDashboard() {
     }
   }, [load])
 
-  const [signingBusyId, setSigningBusyId] = useState<string | null>(null)
-  const handleSignContract = useCallback(async (contract: Contract) => {
-    setSigningBusyId(contract.id)
-    // Navigate to DIY click-to-sign page
-    setSigningBusyId(null)
-    window.location.href = `/contract/${contract.id}`
-  }, [])
-
   const statusColors: Record<string, string> = {
     active: 'bg-[#39FF14]/20 text-[#39FF14]',
     draft: 'bg-white/10 text-gray-400',
     paused: 'bg-yellow-500/20 text-yellow-400',
     closed: 'bg-red-500/20 text-red-400',
     filled: 'bg-[#00F0FF]/20 text-[#00F0FF]',
+  }
+
+  if (companyLoading) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <p className="font-body text-gray-400">Loading...</p>
+      </div>
+    )
+  }
+
+  if (companyLoadError) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] relative">
+        <ParticlesBackground density={0.4} />
+        <div className="relative z-10 max-w-lg mx-auto px-4 py-16 text-center">
+          <p className="font-heading text-white mb-2">Could not load company data</p>
+          <p className="font-body text-red-400 text-sm mb-4">{companyLoadError}</p>
+          <p className="font-body text-gray-500 text-xs">
+            Supabase REST 500 on <code className="text-gray-400">companies</code> / <code className="text-gray-400">profiles</code> is often RLS recursion on admin policies. Apply{' '}
+            <code className="text-gray-400">setup-rls-fix-profiles-recursion.sql</code> in the Supabase SQL editor.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!company) {
+    return (
+      <div className="min-h-screen bg-[#0A0A0A] relative">
+        <ParticlesBackground density={0.4} />
+        <div className="relative z-10 max-w-lg mx-auto px-4 py-16 text-center">
+          <p className="font-body text-gray-400">No company profile found for this account. If you just signed up, wait a moment or contact support.</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -177,17 +224,16 @@ export default function CompanyDashboard() {
                       {contract.contract_type === 'fee_15pct' ? 'Fee 15%' : 'Prestacao de Servico (markup 40%)'}
                     </p>
                     <p className="font-body text-xs text-gray-400 mt-1">
-                      Status: {contract.status ?? 'pending'} • Contract ID: {contract.id.slice(0, 8)}
+                      Empresa: {contract.company_signed_at ? '✓ assinado' : 'pendente'} • Candidato:{' '}
+                      {contract.candidate_signed_at ? '✓ assinado' : 'pendente'} • ID: {contract.id.slice(0, 8)}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleSignContract(contract)}
-                    disabled={signingBusyId === contract.id}
-                    className="btn-cta-cyan px-4 py-2 font-heading text-sm disabled:opacity-50"
+                  <Link
+                    to={`/contract/sign/${contract.id}`}
+                    className="btn-cta-cyan px-4 py-2 font-heading text-sm text-center inline-block"
                   >
-                    {signingBusyId === contract.id ? 'A abrir...' : 'Assinar Contrato'}
-                  </button>
+                    {contract.company_signed_at ? 'Ver assinatura' : 'Assinar contrato (Supabase)'}
+                  </Link>
                 </motion.div>
               ))}
             </div>
