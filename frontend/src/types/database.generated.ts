@@ -315,9 +315,6 @@ export type Database = {
           company_id: string
           contract_type: Database["public"]["Enums"]["contract_type"]
           created_at: string
-          docusign_envelope_id: string | null
-          docusign_status: string | null
-          docusign_url: string | null
           end_date: string | null
           fee_base_salary: number | null
           fee_payment_schedule: Json | null
@@ -342,9 +339,6 @@ export type Database = {
           company_id: string
           contract_type: Database["public"]["Enums"]["contract_type"]
           created_at?: string
-          docusign_envelope_id?: string | null
-          docusign_status?: string | null
-          docusign_url?: string | null
           end_date?: string | null
           fee_base_salary?: number | null
           fee_payment_schedule?: Json | null
@@ -369,9 +363,6 @@ export type Database = {
           company_id?: string
           contract_type?: Database["public"]["Enums"]["contract_type"]
           created_at?: string
-          docusign_envelope_id?: string | null
-          docusign_status?: string | null
-          docusign_url?: string | null
           end_date?: string | null
           fee_base_salary?: number | null
           fee_payment_schedule?: Json | null

@@ -46,7 +46,7 @@
 |------|------|
 | **Migração para Next.js 15** | Mantido Vite + Edge Functions. |
 | **Scraping LinkedIn, Stripe, Resend, WhatsApp** | Integrações previstas no prompt; trabalho futuro. |
-| **Contratos eletrónicos** | ✅ DIY click-to-sign implementado (SHA-256 + IP + timestamp). PandaDoc descartado (API requer plano Enterprise $65+/mês). eIDAS/LGPD compliant. |
+| **Contratos eletrónicos** | ✅ DIY click-to-sign via Supabase (SHA-256 + IP + timestamp + Edge Function `contract-sign`). Tabela `contract_signatures` com trigger auto `check_contract_fully_signed`. Soluções externas (DocuSign/PandaDoc) descartadas — custo desnecessário. eIDAS/LGPD compliant. |
 | **Webhook feedback loop, Realtime nos dashboards, multi-tenant** | Sugestões de evolução. |
 
 ---

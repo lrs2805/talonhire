@@ -151,18 +151,20 @@ export async function scrapeLinkedIn(
   }
 }
 
-export async function createDocusignEnvelope(contractId: string): Promise<{
-  envelope_id?: string
-  view_url?: string
+export async function signContract(contractId: string, consentText?: string): Promise<{
+  success?: boolean
+  bothSigned?: boolean
+  pdfHash?: string
   error?: string
 }> {
-  const { data, error } = await supabase.functions.invoke('docusign-create-envelope', {
-    body: { contract_id: contractId },
+  const { data, error } = await supabase.functions.invoke('contract-sign', {
+    body: { contractId, consentText: consentText || 'I agree to the terms of this contract.' },
   })
   if (error) return { error: error.message }
   if (data?.error) return { error: data.error }
   return {
-    envelope_id: data?.envelope_id,
-    view_url: data?.view_url,
+    success: data?.success,
+    bothSigned: data?.bothSigned,
+    pdfHash: data?.pdfHash,
   }
 }

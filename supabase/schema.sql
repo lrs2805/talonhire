@@ -376,10 +376,10 @@ CREATE TABLE contracts (
   monthly_total INTEGER, -- salary + markup
   relocation_fee INTEGER DEFAULT 0, -- 1000 EUR
 
-  -- DocuSign
-  docusign_envelope_id TEXT,
-  docusign_url TEXT,
-  docusign_status TEXT DEFAULT 'pending',
+  -- DIY Click-to-Sign (Supabase)
+  signature_method TEXT DEFAULT 'diy' CHECK (signature_method IN ('diy')),
+  pdf_hash_sha256 TEXT,
+  both_signed BOOLEAN DEFAULT FALSE,
   signed_at TIMESTAMPTZ,
 
   -- Garantia 90 dias

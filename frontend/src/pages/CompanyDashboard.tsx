@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import { createDocusignEnvelope, runMatching, type MatchingTopCandidate } from '../lib/edgeFunctions'
+import { runMatching, type MatchingTopCandidate } from '../lib/edgeFunctions'
 import ParticlesBackground from '../components/ParticlesBackground'
 import JobCard from '../components/JobCard'
 import type { Company, Contract, Job } from '../types/database'
@@ -69,23 +69,13 @@ export default function CompanyDashboard() {
     }
   }, [load])
 
-  const [docusignBusyId, setDocusignBusyId] = useState<string | null>(null)
+  const [signingBusyId, setSigningBusyId] = useState<string | null>(null)
   const handleSignContract = useCallback(async (contract: Contract) => {
-    setDocusignBusyId(contract.id)
-    let url = contract.docusign_url
-    if (!url) {
-      const created = await createDocusignEnvelope(contract.id)
-      if (created.error) {
-        setMatchingMessage({ type: 'error', text: `Erro ao criar envelope DocuSign: ${created.error}` })
-        setDocusignBusyId(null)
-        return
-      }
-      url = created.view_url ?? null
-      await load()
-    }
-    setDocusignBusyId(null)
-    if (url) window.open(url, '_blank', 'noopener,noreferrer')
-  }, [load])
+    setSigningBusyId(contract.id)
+    // Navigate to DIY click-to-sign page
+    setSigningBusyId(null)
+    window.location.href = `/contract/${contract.id}`
+  }, [])
 
   const statusColors: Record<string, string> = {
     active: 'bg-[#39FF14]/20 text-[#39FF14]',
@@ -187,16 +177,16 @@ export default function CompanyDashboard() {
                       {contract.contract_type === 'fee_15pct' ? 'Fee 15%' : 'Prestacao de Servico (markup 40%)'}
                     </p>
                     <p className="font-body text-xs text-gray-400 mt-1">
-                      Status: {contract.docusign_status ?? 'pending'} • Contract ID: {contract.id.slice(0, 8)}
+                      Status: {contract.status ?? 'pending'} • Contract ID: {contract.id.slice(0, 8)}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => handleSignContract(contract)}
-                    disabled={docusignBusyId === contract.id}
+                    disabled={signingBusyId === contract.id}
                     className="btn-cta-cyan px-4 py-2 font-heading text-sm disabled:opacity-50"
                   >
-                    {docusignBusyId === contract.id ? 'Abrindo DocuSign...' : 'Assinar Contrato'}
+                    {signingBusyId === contract.id ? 'A abrir...' : 'Assinar Contrato'}
                   </button>
                 </motion.div>
               ))}
