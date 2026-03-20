@@ -26,11 +26,11 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from('companies').select('id', { count: 'exact', head: true }),
-      supabase.from('candidates').select('id', { count: 'exact', head: true }),
-      supabase.from('jobs').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-      supabase.from('matchings').select('id', { count: 'exact', head: true }),
-      supabase.from('contracts').select('id', { count: 'exact', head: true }).in('status', ['signed', 'active']),
+      supabase.from('companies').select('id', { count: 'exact' }).limit(0),
+      supabase.from('candidates').select('id', { count: 'exact' }).limit(0),
+      supabase.from('jobs').select('id', { count: 'exact' }).eq('status', 'active').limit(0),
+      supabase.from('matchings').select('id', { count: 'exact' }).limit(0),
+      supabase.from('contracts').select('id', { count: 'exact' }).in('status', ['signed', 'active']).limit(0),
       supabase.from('payments').select('amount').eq('status', 'paid'),
     ]).then(([companies, candidates, jobs, matches, contracts, payments]) => {
       const revenue = (payments.data || []).reduce((sum, p) => sum + (p.amount || 0), 0)

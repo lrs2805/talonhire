@@ -6,7 +6,7 @@ import { supabase } from '../lib/supabase'
 import { useMatches } from '../hooks/useMatches'
 import { generateEmbedding, scrapeLinkedIn, type ScrapedLinkedInProfile } from '../lib/edgeFunctions'
 import ParticlesBackground from '../components/ParticlesBackground'
-import type { Candidate, Interview } from '../types/database'
+import type { Candidate, Contract, Interview } from '../types/database'
 
 interface DashboardStats {
   activeMatches: number
@@ -19,6 +19,7 @@ export default function CandidateDashboard() {
   const [candidate, setCandidate] = useState<Candidate | null>(null)
   const [stats, setStats] = useState<DashboardStats>({ activeMatches: 0, pendingInterviews: 0, recordedVideos: 0 })
   const [recentInterviews, setRecentInterviews] = useState<Interview[]>([])
+  const [pendingContracts, setPendingContracts] = useState<Contract[]>([])
 
   useEffect(() => {
     if (!user) return
@@ -102,15 +103,33 @@ export default function CandidateDashboard() {
   useEffect(() => {
     if (!candidate) return
     Promise.all([
-      supabase.from('matchings').select('id', { count: 'exact', head: true }).eq('candidate_id', candidate.id).in('status', ['pending', 'sent_to_company', 'viewed', 'interview_requested', 'accepted']),
-      supabase.from('interviews').select('id', { count: 'exact', head: true }).eq('candidate_id', candidate.id).in('status', ['pending', 'questions_sent']),
-      supabase.from('interviews').select('id', { count: 'exact', head: true }).eq('candidate_id', candidate.id).not('video_url', 'is', null),
+      supabase.from('matchings').select('id', { count: 'exact' }).eq('candidate_id', candidate.id).in('status', ['pending', 'sent_to_company', 'viewed', 'interview_requested', 'accepted']).limit(0),
+      supabase.from('interviews').select('id', { count: 'exact' }).eq('candidate_id', candidate.id).in('status', ['pending', 'questions_sent']).limit(0),
+      supabase.from('interviews').select('id', { count: 'exact' }).eq('candidate_id', candidate.id).not('video_url', 'is', null).limit(0),
       supabase.from('interviews').select('*').eq('candidate_id', candidate.id).order('created_at', { ascending: false }).limit(5),
     ]).then(([matchRes, interviewRes, videoRes, recentRes]) => {
       setStats({ activeMatches: matchRes.count || 0, pendingInterviews: interviewRes.count || 0, recordedVideos: videoRes.count || 0 })
       if (recentRes.data) setRecentInterviews(recentRes.data)
     })
   }, [candidate])
+
+  useEffect(() => {
+    if (!candidate?.id) {
+      setPendingContracts([])
+      return
+    }
+    void supabase
+      .from('contracts')
+      .select('*')
+      .eq('candidate_id', candidate.id)
+      .is('candidate_signed_at', null)
+      .not('status', 'eq', 'cancelled')
+      .not('status', 'eq', 'completed')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => {
+        setPendingContracts((data ?? []) as Contract[])
+      })
+  }, [candidate?.id])
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] relative">
@@ -142,6 +161,39 @@ export default function CandidateDashboard() {
             </motion.div>
           ))}
         </div>
+
+        {pendingContracts.length > 0 && (
+          <div className="mb-6 sm:mb-8">
+            <h2 className="font-heading text-lg sm:text-xl font-semibold text-white mb-4 text-glow-green">Contratos por assinar</h2>
+            <p className="font-body text-sm text-gray-400 mb-3">
+              Assinatura eletrónica (DIY) no Supabase — hash e registo de prova. Completa quando estiveres pronto.
+            </p>
+            <div className="space-y-3">
+              {pendingContracts.map((c) => (
+                <motion.div
+                  key={c.id}
+                  whileHover={{ scale: 1.02 }}
+                  className="card-neon horizons-card-hover p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                >
+                  <div>
+                    <p className="font-heading text-white text-sm sm:text-base">
+                      {c.contract_type === 'fee_15pct' ? 'Fee 15%' : 'Prestação de serviço (markup)'}
+                    </p>
+                    <p className="font-body text-xs text-gray-400 mt-1">
+                      Empresa: {c.company_signed_at ? '✓ já assinou' : 'aguarda assinatura'} • ID: {c.id.slice(0, 8)}
+                    </p>
+                  </div>
+                  <Link
+                    to={`/contract/sign/${c.id}`}
+                    className="btn-cta-green px-4 py-2 font-heading text-sm text-center inline-block shrink-0"
+                  >
+                    Assinar contrato
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {candidate && (
           <>

@@ -54,8 +54,11 @@ export default function CompanyDashboard() {
     setRecentJobs((jobsList ?? []).slice(0, 5) as Job[])
     const jobIds = (jobsList ?? []).map((j) => j.id)
     const [contractsRes, matchingsRes, contractsList] = await Promise.all([
-      supabase.from('contracts').select('id', { count: 'exact', head: true }).eq('company_id', company.id).in('status', ['signed', 'active', 'completed']),
-      jobIds.length > 0 ? supabase.from('matchings').select('id', { count: 'exact', head: true }).in('job_id', jobIds).in('status', ['sent_to_company', 'viewed', 'interview_requested', 'accepted']) : { count: 0 },
+      // GET + limit(0) em vez de HEAD (head:true): HEAD com count=exact pode devolver 500 com RLS em alguns setups (QA Rodada 4).
+      supabase.from('contracts').select('id', { count: 'exact' }).eq('company_id', company.id).in('status', ['signed', 'active', 'completed']).limit(0),
+      jobIds.length > 0
+        ? supabase.from('matchings').select('id', { count: 'exact' }).in('job_id', jobIds).in('status', ['sent_to_company', 'viewed', 'interview_requested', 'accepted']).limit(0)
+        : Promise.resolve({ count: 0, error: null }),
       supabase
         .from('contracts')
         .select('*')

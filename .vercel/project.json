@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_BMdUviVUB3HvxXaleyOfq8WqTEAy",
+  "orgId": "team_uZz0SG8XQHuN75B3PY6zhJoA",
+  "projectName": "talonhire",
+  "settings": {
+    "createdAt": 1773954788807,
+    "framework": "vite",
+    "devCommand": null,
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "rootDirectory": "frontend",
+    "directoryListing": false,
+    "nodeVersion": "20.x"
+  }
+}
