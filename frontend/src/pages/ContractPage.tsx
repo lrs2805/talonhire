@@ -62,22 +62,6 @@ export default function ContractPage() {
           </Link>
         </div>
 
-        {/* Signature Status */}
-        {contract.pandadoc_status && contract.pandadoc_status !== 'none' && (
-          <div className="mb-4 card-neon p-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-400">PandaDoc Status:</span>
-              <span className={`text-sm font-medium ${
-                contract.pandadoc_status === 'completed' ? 'text-neon-green' :
-                contract.pandadoc_status === 'declined' ? 'text-red-400' :
-                'text-neon-cyan'
-              }`}>
-                {contract.pandadoc_status.charAt(0).toUpperCase() + contract.pandadoc_status.slice(1)}
-              </span>
-            </div>
-          </div>
-        )}
-
         <ContractSign contract={contract} onSigned={fetchContract} />
       </div>
     </div>

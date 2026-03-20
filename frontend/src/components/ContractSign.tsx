@@ -14,8 +14,6 @@ interface ContractData {
   start_date?: string;
   end_date?: string;
   both_signed?: boolean;
-  signature_method?: string;
-  pandadoc_status?: string;
   jobs?: { title: string };
   candidates?: { profiles?: { full_name: string } };
   companies?: { name: string };
@@ -31,14 +29,13 @@ export default function ContractSign({ contract, onSigned }: Props) {
   const [agreed, setAgreed] = useState(false);
   const [signing, setSigning] = useState(false);
   const [result, setResult] = useState<{ success?: boolean; message?: string; error?: string } | null>(null);
-  const [sendingPandaDoc, setSendingPandaDoc] = useState(false);
 
   const isFee = contract.contract_type === 'fee_15pct';
   const candidateName = contract.candidates?.profiles?.full_name || 'Candidate';
   const companyName = contract.companies?.name || 'Company';
   const jobTitle = contract.jobs?.title || 'Position';
 
-  const handleDiySign = async () => {
+  const handleSign = async () => {
     if (!agreed) return;
     setSigning(true);
     setResult(null);
@@ -62,28 +59,6 @@ export default function ContractSign({ contract, onSigned }: Props) {
       setResult({ error: message });
     } finally {
       setSigning(false);
-    }
-  };
-
-  const handlePandaDocSend = async () => {
-    setSendingPandaDoc(true);
-    setResult(null);
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
-
-      const res = await supabase.functions.invoke('pandadoc-create', {
-        body: { contractId: contract.id },
-      });
-
-      if (res.error) throw new Error(res.error.message);
-      setResult({ success: true, message: 'PandaDoc document created and sent to both parties for signature.' });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to create PandaDoc';
-      setResult({ error: message });
-    } finally {
-      setSendingPandaDoc(false);
     }
   };
 
@@ -173,19 +148,15 @@ export default function ContractSign({ contract, onSigned }: Props) {
         )}
       </div>
 
-      {/* Signing Methods */}
+      {/* Sign Contract */}
       <div className="space-y-4">
-        <h4 className="text-sm font-heading text-gray-300 uppercase tracking-wider">Choose signing method</h4>
-
-        {/* DIY Click-to-Sign */}
         <div className="border border-gray-700 rounded-lg p-4 space-y-3">
           <div className="flex items-center gap-2">
             <span className="text-neon-cyan text-lg">⚡</span>
-            <span className="text-white font-medium">Quick Sign (Click-to-Sign)</span>
-            <span className="text-xs bg-neon-green/20 text-neon-green px-2 py-0.5 rounded">FREE</span>
+            <span className="text-white font-medium">Electronic Signature</span>
           </div>
           <p className="text-gray-400 text-xs">
-            Legally valid electronic signature with SHA-256 hash, IP address, and timestamp recorded.
+            Legally valid electronic signature (eIDAS / LGPD compliant). Recorded with SHA-256 document hash, IP address, timestamp, and user agent.
           </p>
 
           <label className="flex items-start gap-3 cursor-pointer">
@@ -202,31 +173,11 @@ export default function ContractSign({ contract, onSigned }: Props) {
           </label>
 
           <button
-            onClick={handleDiySign}
+            onClick={handleSign}
             disabled={!agreed || signing}
             className="btn-cta-cyan w-full disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {signing ? 'Signing...' : 'Sign Contract'}
-          </button>
-        </div>
-
-        {/* PandaDoc */}
-        <div className="border border-gray-700 rounded-lg p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-neon-green text-lg">📄</span>
-            <span className="text-white font-medium">PandaDoc (Formal Document)</span>
-            <span className="text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded">WATERMARK</span>
-          </div>
-          <p className="text-gray-400 text-xs">
-            Send a formal contract via PandaDoc. Both parties sign via email. Free with PandaDoc watermark.
-          </p>
-
-          <button
-            onClick={handlePandaDocSend}
-            disabled={sendingPandaDoc}
-            className="w-full py-2 px-4 rounded-lg border border-neon-green text-neon-green hover:bg-neon-green/10 transition-colors disabled:opacity-50"
-          >
-            {sendingPandaDoc ? 'Creating Document...' : 'Send via PandaDoc'}
           </button>
         </div>
       </div>
@@ -240,8 +191,8 @@ export default function ContractSign({ contract, onSigned }: Props) {
 
       {/* Legal Note */}
       <p className="text-xs text-gray-500 text-center">
-        LGPD/GDPR compliant. All data retained for 90 days after contract end.
-        Signatures are recorded with SHA-256 hash, IP address, timestamp, and user agent.
+        LGPD/GDPR compliant. Data retained for 90 days after contract end.
+        Each signature records: SHA-256 document hash, signer IP, timestamp, and user agent.
       </p>
     </div>
   );
