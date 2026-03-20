@@ -53,12 +53,27 @@ export default function CompanyDashboard() {
     const activeCount = jobsList?.filter((j) => j.status === 'active').length ?? 0
     setRecentJobs((jobsList ?? []).slice(0, 5) as Job[])
     const jobIds = (jobsList ?? []).map((j) => j.id)
-    const [contractsRes, matchingsRes, contractsList] = await Promise.all([
-      // GET + limit(0) em vez de HEAD (head:true): HEAD com count=exact pode devolver 500 com RLS em alguns setups (QA Rodada 4).
+
+    let pipelineCount = 0
+    if (jobIds.length > 0) {
+      const { data: rpcData, error: rpcErr } = await supabase.rpc('count_matchings_pipeline_for_jobs', {
+        p_job_ids: jobIds,
+      })
+      if (!rpcErr && rpcData != null) {
+        pipelineCount = Number(rpcData)
+      } else {
+        const { count } = await supabase
+          .from('matchings')
+          .select('id', { count: 'exact' })
+          .in('job_id', jobIds)
+          .in('status', ['sent_to_company', 'viewed', 'interview_requested', 'accepted'])
+          .limit(0)
+        pipelineCount = count ?? 0
+      }
+    }
+
+    const [contractsRes, contractsList] = await Promise.all([
       supabase.from('contracts').select('id', { count: 'exact' }).eq('company_id', company.id).in('status', ['signed', 'active', 'completed']).limit(0),
-      jobIds.length > 0
-        ? supabase.from('matchings').select('id', { count: 'exact' }).in('job_id', jobIds).in('status', ['sent_to_company', 'viewed', 'interview_requested', 'accepted']).limit(0)
-        : Promise.resolve({ count: 0, error: null }),
       supabase
         .from('contracts')
         .select('*')
@@ -67,7 +82,6 @@ export default function CompanyDashboard() {
         .order('created_at', { ascending: false })
         .limit(3),
     ])
-    const pipelineCount = matchingsRes.count ?? 0
     setStats({ activeJobs: activeCount, totalCandidates: pipelineCount, pendingMatches: pipelineCount, closedContracts: contractsRes.count ?? 0 })
     setContractsToSign((contractsList.data ?? []) as Contract[])
   }, [company])
